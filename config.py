@@ -21,7 +21,7 @@ if 'local_config.py' in os.listdir('.'):
 else:
 	is_local_run = False
 	TOKEN = os.getenv('TOKEN')
-	school_host = os.getenv('school_host')
-	school_user = os.getenv('school_user')
-	school_password = os.getenv('school_password')
-	school_database = os.getenv('school_database')
+	school_host = os.getenv('db_host')
+	school_user = os.getenv('db_user')
+	school_password = os.getenv('db_password')
+	school_database = os.getenv('db_database')
