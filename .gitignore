@@ -1,0 +1,9 @@
+#Ignoarari standarte
+__pycache__/
+*.py[cod]
+
+#Ignorarea ramasitilor de la pycharm
+.idea/
+
+#Config-ul e diferit pe fiecare platforma
+local_*.py
