@@ -14,19 +14,19 @@ def is_valid_group_name(name: str) -> bool:
 	if len(split_group_name) != 2:
 		return False
 
-	if not 64 < ord(split_group_name[0][0]) < 91: # Daca primul simbol nu este litera mare.
+	if not 64 < ord(split_group_name[0][0]) < 91:  # Daca primul simbol nu este litera mare.
 		return False
 
-	if not 64 < ord(split_group_name[0][1]) < 91 and not 94 < ord(split_group_name[0][1]) < 123: # Daca al doilea simbol nu este litara.
+	if not 64 < ord(split_group_name[0][1]) < 91 and not 94 < ord(split_group_name[0][1]) < 123:  # Daca al doilea simbol nu este litara.
 		return False
 
 	if len(split_group_name[1]) != 4 and len(split_group_name[1]) != 5:
 		return False
 
-	if not str(split_group_name[1][0:3]).isdigit(): # Daca primele 4 numere nu este o cifra.
+	if not str(split_group_name[1][0:3]).isdigit():  # Daca primele 4 numere nu este o cifra.
 		return False
 
-	if len(split_group_name[1]) == 5 and not 64 < ord(split_group_name[1][-1]) < 91: # Daca litera de la urma este mare (daca exista)
+	if len(split_group_name[1]) == 5 and not 64 < ord(split_group_name[1][-1]) < 91:  # Daca litera de la urma este mare (daca exista)
 		return False
 
 	return True
