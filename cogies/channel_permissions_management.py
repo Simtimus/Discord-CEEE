@@ -123,6 +123,7 @@ class ChannelRoles(commands.Cog):
 								elif channel.name == 'limba-franceza' and channel.name in roles:
 									await channel.set_permissions(member, overwrite=overwrite)
 								else:
+									overwrite = permission_overwrite(None)
 									await channel.set_permissions(member, overwrite=overwrite)
 							# Daca membrul are rolul 'Profesor'
 							elif 'Profesor' in roles:
