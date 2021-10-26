@@ -32,28 +32,25 @@ def is_valid_group_name(name: str) -> bool:
 	return True
 
 
+def permission_overwrite(param):
+	return discord.PermissionOverwrite(read_message_history=param, read_messages=param, send_messages=param, view_channel=param)
+
+
+def create_buttons(labels):
+	btn_list = [[], [main.Button(style=main.ButtonStyle.red, label="Renunta")]]
+	row = 0
+	for label in labels:
+		if len(btn_list[row]) >= 5 and row == 0:
+			row += 1
+			btn_list.insert(row, [])
+		btn_list[row].append(main.Button(style=main.ButtonStyle.blue, label=label))
+	return btn_list
+
+
 # Initierea clasului
 class ChannelRoles(commands.Cog):
 	def __init__(self, client):
 		self.client = client
-
-	def overwrite(self, param):
-		overwrite = discord.PermissionOverwrite()
-		overwrite.read_message_history = param
-		overwrite.read_messages = param
-		overwrite.send_messages = param
-		overwrite.view_channel = param
-		return overwrite
-
-	def create_buttons(self, labels):
-		btn_list = [[], [main.Button(style=main.ButtonStyle.red, label="Renunta")]]
-		row = 0
-		for label in labels:
-			if len(btn_list[row]) >= 5 and row == 0:
-				row += 1
-				btn_list.insert(row, [])
-			btn_list[row].append(main.Button(style=main.ButtonStyle.blue, label=label))
-		return btn_list
 
 	# Asocierea rolurilor si canalelor
 	@commands.command()
@@ -92,7 +89,7 @@ class ChannelRoles(commands.Cog):
 					if group_format != [] and category.name == group_format[0] and category.name in roles:
 						# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
 						for channel in category.channels:
-							overwrite = self.overwrite(True)
+							overwrite = permission_overwrite(True)
 							# Daca membrul are rol de 'Elev'
 							if 'Elev' in roles:
 								# Actiune default
@@ -120,10 +117,12 @@ class ChannelRoles(commands.Cog):
 							for channel in category.channels:
 								# Dirigintele nu are permisiuni in canalul 'off-topic'
 								if channel.name != 'off-topic':
+									overwrite = permission_overwrite(True)
 									await channel.set_permissions(member, overwrite=overwrite)
 					# Daca membrul are rol de 'Admin'
 					if group_format != [] and category.name == group_format[0] and 'Admin' in roles:
 						for channel in category.channels:
+							overwrite = permission_overwrite(True)
 							await channel.set_permissions(member, overwrite=overwrite)
 			count += 1
 			embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat {count} din {scope} membri')
@@ -159,7 +158,7 @@ class ChannelRoles(commands.Cog):
 				# Daca categoria corespunde expresiei
 				group_format = re.findall('^[A-Z][a-zA-Z]-[0-9]{4}[A-Z]?$', category.name)
 				if group_format != [] and category.name == group_format[0]:
-					overwrite = self.overwrite(None)
+					overwrite = permission_overwrite(None)
 					# Daca utilizatorul a introdus denumirea categoriei
 					if unload_category is not None and unload_category == category.name:
 						# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
@@ -190,7 +189,7 @@ class ChannelRoles(commands.Cog):
 			return
 		if unload_member is not None:
 			message = f'Restaurare membrului {unload_member}'
-			# Pentru fiecare membru se verifica informatia
+			# Pentru fiecare membru se verifica ingroup_formatia
 			count = 0
 			scope = len(ctx.guild.categories)
 			embed = main.embeded(ctx, message, f'Finailzat {count} din {scope} membri')
@@ -199,9 +198,9 @@ class ChannelRoles(commands.Cog):
 			for category in ctx.guild.categories:
 				# Daca se gaseste denumirea categoriei in rolurile membrului
 				# Daca categoria corespunde expresiei
-				format = re.findall('^[A-Z][a-zA-Z]-[0-9]{4}[A-Z]?$', category.name)
-				if format != [] and category.name == format[0]:
-					overwrite = self.overwrite(None)
+				group_format = re.findall('^[A-Z][a-zA-Z]-[0-9]{4}[A-Z]?$', category.name)
+				if group_format != [] and category.name == group_format[0]:
+					overwrite = permission_overwrite(None)
 					# Daca utilizatorul a introdus membrul
 					if unload_member is not None:
 						# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
