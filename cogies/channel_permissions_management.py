@@ -178,7 +178,7 @@ class ChannelRoles(commands.Cog):
 			message = f'Restaurarea categoriilor'
 		# Pentru fiecare membru se verifica informatia
 		count = 0
-		scope = len(ctx.guild.categories)
+		scope = len(ctx.guild.members)
 		embed = main.embeded(ctx, message, f'Finailzat {count} din {scope} categorii')
 		msg = await ctx.channel.send(embed=embed)
 		# Pentru fiecare membru din server
@@ -187,6 +187,8 @@ class ChannelRoles(commands.Cog):
 			# Daca membrul are rol de 'Admin' permisiunile se pastreaza
 			if 'Admin' in roles:
 				count += 1
+				embed = main.embeded(ctx, message, f'Finailzat {count} din {scope} membri')
+				await msg.edit(embed=embed)
 				continue
 			# Pentru fiecare categorie se verifica daca utilizatorul este admis
 			for category in ctx.guild.categories:
@@ -204,7 +206,7 @@ class ChannelRoles(commands.Cog):
 						for channel in category.channels:
 							await channel.set_permissions(member, overwrite=overwrite)
 			count += 1
-			embed = main.embeded(ctx, message, f'Finailzat {count} din {scope} categorii')
+			embed = main.embeded(ctx, message, f'Finailzat {count} din {scope} membri')
 			await msg.edit(embed=embed)
 		# Finalizat
 		embed = main.embeded(ctx, message, f'Finailzat')
