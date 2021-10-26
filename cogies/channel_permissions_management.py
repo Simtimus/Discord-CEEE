@@ -98,6 +98,13 @@ class ChannelRoles(commands.Cog):
 									await channel.set_permissions(member, overwrite=overwrite)
 							# Daca membrul are rolul 'Profesor'
 							elif 'Profesor' in roles:
+								for role in member.roles:
+									if role.name.startswith('#'):
+										splited_discipline = role.name.split('_')
+										group_name = splited_discipline[0]
+										if group_name[1:] == category.name:
+											if channel.name in splited_discipline:
+												await channel.set_permissions(member, overwrite=overwrite)
 								if channel.name in roles:
 									await channel.set_permissions(member, overwrite=overwrite)
 							elif 'Profesor?' in roles:
