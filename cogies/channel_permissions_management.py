@@ -38,6 +38,19 @@ def permission_overwrite(param):
 	overwrite.read_messages = param
 	overwrite.send_messages = param
 	overwrite.view_channel = param
+	overwrite.add_reactions = param
+	overwrite.attach_files = param
+	overwrite.connect = param
+	overwrite.embed_links = param
+	overwrite.external_emojis = param
+	overwrite.mention_everyone = param
+	overwrite.request_to_speak = param
+	overwrite.send_tts_messages = param
+	overwrite.speak = param
+	overwrite.stream = param
+	overwrite.use_external_emojis = param
+	# overwrite.use_slash_commands = param
+	overwrite.use_voice_activation = param
 	return overwrite
 
 
@@ -109,6 +122,8 @@ class ChannelRoles(commands.Cog):
 								# Daca membrul are rolul 'limba-franceza'
 								elif channel.name == 'limba-franceza' and channel.name in roles:
 									await channel.set_permissions(member, overwrite=overwrite)
+								else:
+									await channel.set_permissions(member, overwrite=overwrite)
 							# Daca membrul are rolul 'Profesor'
 							elif 'Profesor' in roles:
 								# Pentru fiecare rol din rolurile membrului
@@ -118,9 +133,9 @@ class ChannelRoles(commands.Cog):
 										splited_discipline = role.name.split('_')
 										group_name = splited_discipline[0]
 										# Daca numele primului element din lista coincide cu categoria
-										if group_name[1:] == category.name:
+										if category.name in splited_discipline:
 											# Daca numele canalului este in lista
-											if channel.name in splited_discipline:
+											if group_name[1:] == channel.name or channel.name == 'voce':
 												await channel.set_permissions(member, overwrite=overwrite)
 										else:
 											overwrite = permission_overwrite(None)
