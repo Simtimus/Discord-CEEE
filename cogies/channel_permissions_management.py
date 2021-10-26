@@ -33,7 +33,12 @@ def is_valid_group_name(name: str) -> bool:
 
 
 def permission_overwrite(param):
-	return discord.PermissionOverwrite(read_message_history=param, read_messages=param, send_messages=param, view_channel=param)
+	overwrite = discord.PermissionOverwrite()
+	overwrite.read_message_history = param
+	overwrite.read_messages = param
+	overwrite.send_messages = param
+	overwrite.view_channel = param
+	return overwrite
 
 
 def create_buttons(labels):
@@ -55,15 +60,23 @@ class ChannelRoles(commands.Cog):
 	# Asocierea rolurilor si canalelor
 	@commands.command()
 	@commands.has_role('Admin')
-	async def update(self, ctx):
+	async def update(self, ctx, only_member: discord.Member = None):
 		await ctx.channel.purge(limit=1)
+
+		# Daca sunt date de intrare
+		if only_member is None:
+			guild_members = ctx.guild.members
+		else:
+			guild_members = [only_member]
+
 		# Pentru fiecare membru se verifica informatia
 		count = 0
-		scope = len(ctx.guild.members)
+		scope = len(guild_members)
 		embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat {count} din {scope} membri')
 		msg = await ctx.channel.send(embed=embed)
+
 		# Pentru fiecare membru din server
-		for member in ctx.guild.members:
+		for member in guild_members:
 			roles = [role.name for role in member.roles]
 
 			# Daca membrul nu are inca roluri
@@ -109,7 +122,10 @@ class ChannelRoles(commands.Cog):
 											# Daca numele canalului este in lista
 											if channel.name in splited_discipline:
 												await channel.set_permissions(member, overwrite=overwrite)
-							elif 'Profesor?' in roles and category.name in roles:
+										else:
+											overwrite = permission_overwrite(None)
+											await channel.set_permissions(member, overwrite=overwrite)
+							elif 'Profesor?' in roles:
 								pass
 							else:
 								overwrite = permission_overwrite(None)
