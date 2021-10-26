@@ -92,75 +92,78 @@ class ChannelRoles(commands.Cog):
 		for member in guild_members:
 			roles = [role.name for role in member.roles]
 
-			# Daca membrul nu are inca roluri
-			if 'Membru Nou' or 'Membru' in roles:
-				# Daca membrul este membru nou
-				if 'Membru Nou' in roles:
-					for role in member.roles:
-						# Rolul care declara ca membrul este membru nou este inlaturat
-						if role.name == 'Membru Nou':
-							await member.remove_roles(role)
-						# Adauga rol cu permisiuni extinse
-						if role.name == 'Membru':
-							await member.add_roles(role)
+			# Daca membrul nu este bot sau Administrator Discord
+			if 'Dev' not in roles and 'Bots' not in roles:
+				print('Something')
+				# Daca membrul nu are inca roluri
+				if 'Membru Nou' or 'Membru' in roles:
+					# Daca membrul este membru nou
+					if 'Membru Nou' in roles:
+						for role in member.roles:
+							# Rolul care declara ca membrul este membru nou este inlaturat
+							if role.name == 'Membru Nou':
+								await member.remove_roles(role)
+							# Adauga rol cu permisiuni extinse
+							if role.name == 'Membru':
+								await member.add_roles(role)
 
-				# Pentru fiecare categorie se verifica daca utilizatorul este admis
-				for category in ctx.guild.categories:
-					# Daca se gaseste denumirea categoriei in rolurile membrului
-					if is_valid_group_name(category.name):
-						# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
-						for channel in category.channels:
-							overwrite = permission_overwrite(True)
-							# Daca membrul are rol de 'Elev'
-							if 'Elev' in roles and category.name in roles:
-								# Actiune default
-								if channel.name != 'limba-franceza' and channel.name != 'limba-engleza':
-									await channel.set_permissions(member, overwrite=overwrite)
-								# Daca membrul are rolul 'limba-engleza'
-								elif channel.name == 'limba-engleza' and channel.name in roles:
-									await channel.set_permissions(member, overwrite=overwrite)
-								# Daca membrul are rolul 'limba-franceza'
-								elif channel.name == 'limba-franceza' and channel.name in roles:
-									await channel.set_permissions(member, overwrite=overwrite)
+					# Pentru fiecare categorie se verifica daca utilizatorul este admis
+					for category in ctx.guild.categories:
+						# Daca se gaseste denumirea categoriei in rolurile membrului
+						if is_valid_group_name(category.name):
+							# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
+							for channel in category.channels:
+								overwrite = permission_overwrite(True)
+								# Daca membrul are rol de 'Elev'
+								if 'Elev' in roles and category.name in roles:
+									# Actiune default
+									if channel.name != 'limba-franceza' and channel.name != 'limba-engleza':
+										await channel.set_permissions(member, overwrite=overwrite)
+									# Daca membrul are rolul 'limba-engleza'
+									elif channel.name == 'limba-engleza' and channel.name in roles:
+										await channel.set_permissions(member, overwrite=overwrite)
+									# Daca membrul are rolul 'limba-franceza'
+									elif channel.name == 'limba-franceza' and channel.name in roles:
+										await channel.set_permissions(member, overwrite=overwrite)
+									else:
+										overwrite = permission_overwrite(None)
+										await channel.set_permissions(member, overwrite=overwrite)
+								# Daca membrul are rolul 'Profesor'
+								elif 'Profesor' in roles:
+									# Pentru fiecare rol din rolurile membrului
+									for role in member.roles:
+										# Daca rolul se incepe cu diez #
+										if role.name.startswith('#'):
+											splited_discipline = role.name.split('_')
+											group_name = splited_discipline[0]
+											# Daca numele primului element din lista coincide cu categoria
+											if category.name in splited_discipline:
+												# Daca numele canalului este in lista
+												if group_name[1:] == channel.name or channel.name == 'voce':
+													await channel.set_permissions(member, overwrite=overwrite)
+											else:
+												overwrite = permission_overwrite(None)
+												await channel.set_permissions(member, overwrite=overwrite)
+								elif 'Profesor?' in roles:
+									pass
 								else:
 									overwrite = permission_overwrite(None)
 									await channel.set_permissions(member, overwrite=overwrite)
-							# Daca membrul are rolul 'Profesor'
-							elif 'Profesor' in roles:
-								# Pentru fiecare rol din rolurile membrului
-								for role in member.roles:
-									# Daca rolul se incepe cu diez #
-									if role.name.startswith('#'):
-										splited_discipline = role.name.split('_')
-										group_name = splited_discipline[0]
-										# Daca numele primului element din lista coincide cu categoria
-										if category.name in splited_discipline:
-											# Daca numele canalului este in lista
-											if group_name[1:] == channel.name or channel.name == 'voce':
-												await channel.set_permissions(member, overwrite=overwrite)
-										else:
-											overwrite = permission_overwrite(None)
-											await channel.set_permissions(member, overwrite=overwrite)
-							elif 'Profesor?' in roles:
-								pass
-							else:
-								overwrite = permission_overwrite(None)
-								await channel.set_permissions(member, overwrite=overwrite)
-					# Daca numele categoriei este nume de grup
-					if is_valid_group_name(category.name):
-						# Daca membrul are rol de diriginte
-						if f'Diriginte {category.name}' in roles:
+						# Daca numele categoriei este nume de grup
+						if is_valid_group_name(category.name):
+							# Daca membrul are rol de diriginte
+							if f'Diriginte {category.name}' in roles:
+								overwrite = permission_overwrite(True)
+								# Pentru fiecare canal de categorie se permite accesul
+								for channel in category.channels:
+									# Dirigintele nu are permisiuni in canalul 'off-topic'
+									if channel.name != 'off-topic':
+										await channel.set_permissions(member, overwrite=overwrite)
+						# Daca membrul are rol de 'Admin'
+						if is_valid_group_name(category.name) and 'Admin' in roles:
 							overwrite = permission_overwrite(True)
-							# Pentru fiecare canal de categorie se permite accesul
 							for channel in category.channels:
-								# Dirigintele nu are permisiuni in canalul 'off-topic'
-								if channel.name != 'off-topic':
-									await channel.set_permissions(member, overwrite=overwrite)
-					# Daca membrul are rol de 'Admin'
-					if is_valid_group_name(category.name) and 'Admin' in roles:
-						overwrite = permission_overwrite(True)
-						for channel in category.channels:
-							await channel.set_permissions(member, overwrite=overwrite)
+								await channel.set_permissions(member, overwrite=overwrite)
 			count += 1
 			embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat {count} din {scope} membri')
 			await msg.edit(embed=embed)
