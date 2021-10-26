@@ -118,8 +118,7 @@ class OnEventTrigger(commands.Cog):
 			group = ''
 
 			# Verificarea parametrului name la simboluri
-			valid_name = is_valid_name(name)
-			if not valid_name:
+			if not is_valid_name(name):
 				message = 'Numele introdus contine simboluri. Pentru a va putea inregistra, accesati linkul de mai jos.\nhttps://discord.gg/SQnZ3scFmb'
 				embed = embeded('Inregistrare respinsa', message, discord.Colour.red())
 				await member.send(embed=embed, components=[])
