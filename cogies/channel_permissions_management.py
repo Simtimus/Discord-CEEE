@@ -74,19 +74,14 @@ class ChannelRoles(commands.Cog):
 						# Rolul care declara ca membrul este membru nou este inlaturat
 						if role.name == 'Membru Nou':
 							await member.remove_roles(role)
-				# Daca membrul nu are rolul 'Membru'
-				if 'Membru' not in roles:
-					for role in ctx.guild.roles:
 						# Adauga rol cu permisiuni extinse
 						if role.name == 'Membru':
 							await member.add_roles(role)
 
 				# Pentru fiecare categorie se verifica daca utilizatorul este admis
 				for category in ctx.message.guild.categories:
-					# Daca categoria corespunde expresiei
-					group_format = re.findall('^[A-Z][a-zA-Z]-[0-9]{4}[A-Z]?$', category.name)
 					# Daca se gaseste denumirea categoriei in rolurile membrului
-					if group_format != [] and category.name == group_format[0] and category.name in roles:
+					if is_valid_group_name(category.name) and category.name in roles:
 						# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
 						for channel in category.channels:
 							overwrite = permission_overwrite(True)
@@ -109,10 +104,10 @@ class ChannelRoles(commands.Cog):
 								pass
 							else:
 								await channel.set_permissions(member, overwrite=overwrite)
-					# Daca categoria corespunde expresiei
-					if group_format != [] and category.name == group_format[0]:
+					# Daca numele categoriei este nume de grup
+					if is_valid_group_name(category.name):
 						# Daca membrul are rol de diriginte
-						if f'Diriginte {group_format[0]}' in roles:
+						if f'Diriginte {category.name}' in roles:
 							# Pentru fiecare canal de categorie se permite accesul
 							for channel in category.channels:
 								# Dirigintele nu are permisiuni in canalul 'off-topic'
@@ -120,7 +115,7 @@ class ChannelRoles(commands.Cog):
 									overwrite = permission_overwrite(True)
 									await channel.set_permissions(member, overwrite=overwrite)
 					# Daca membrul are rol de 'Admin'
-					if group_format != [] and category.name == group_format[0] and 'Admin' in roles:
+					if is_valid_group_name(category.name) and 'Admin' in roles:
 						for channel in category.channels:
 							overwrite = permission_overwrite(True)
 							await channel.set_permissions(member, overwrite=overwrite)
@@ -154,10 +149,8 @@ class ChannelRoles(commands.Cog):
 				continue
 			# Pentru fiecare categorie se verifica daca utilizatorul este admis
 			for category in ctx.guild.categories:
-				# Daca se gaseste denumirea categoriei in rolurile membrului
 				# Daca categoria corespunde expresiei
-				group_format = re.findall('^[A-Z][a-zA-Z]-[0-9]{4}[A-Z]?$', category.name)
-				if group_format != [] and category.name == group_format[0]:
+				if is_valid_group_name(category.name):
 					overwrite = permission_overwrite(None)
 					# Daca utilizatorul a introdus denumirea categoriei
 					if unload_category is not None and unload_category == category.name:
@@ -196,16 +189,12 @@ class ChannelRoles(commands.Cog):
 			msg = await ctx.channel.send(embed=embed)
 			# Pentru fiecare categorie din server
 			for category in ctx.guild.categories:
-				# Daca se gaseste denumirea categoriei in rolurile membrului
-				# Daca categoria corespunde expresiei
-				group_format = re.findall('^[A-Z][a-zA-Z]-[0-9]{4}[A-Z]?$', category.name)
-				if group_format != [] and category.name == group_format[0]:
+				# Daca numele categoriei este nume de grup
+				if is_valid_group_name(category.name):
 					overwrite = permission_overwrite(None)
-					# Daca utilizatorul a introdus membrul
-					if unload_member is not None:
-						# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
-						for channel in category.channels:
-							await channel.set_permissions(unload_member, overwrite=overwrite)
+					# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
+					for channel in category.channels:
+						await channel.set_permissions(unload_member, overwrite=overwrite)
 				count += 1
 				embed = main.embeded(ctx, message, f'Finailzat {count} din {scope} categorii')
 				await msg.edit(embed=embed)
