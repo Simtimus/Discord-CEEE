@@ -61,14 +61,12 @@ async def sync_channels(ctx, msg):
 		for channel in category.channels:
 			await channel.edit(sync_permissions=True)
 			# Daca canalul este pentru elevi si profesori
-			if category.name not in unwanted_categories or channel.name not in unwanted_channels:
-				if channel.name not in sync_result.keys():
+			if category.name not in unwanted_categories and channel.name not in unwanted_channels:
+				if channel.name in sync_result.keys():
+					sync_result[channel.name].append([category.name, channel.id])
+				else:
 					sync_result[channel.name] = [[category.name, channel.id]]
-				elif channel.name in sync_result.keys():
-					if type(sync_result[channel.name]) is list:
-						lis = sync_result[channel.name]
-						lis.append([category.name, channel.id])
-						sync_result[channel.name] = lis
+
 		count += 1
 		embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat {count} din {scope} categorii', discord.Colour.gold())
 		await msg.edit(embed=embed)
