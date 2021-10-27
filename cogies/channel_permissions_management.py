@@ -114,21 +114,23 @@ class ChannelRoles(commands.Cog):
 
 							overwrite = permission_overwrite(True)
 							# Daca membrul are rol de 'Elev'
-							if 'Elev' in roles and category.name in roles:
+							if 'Elev' in roles or ('Elev' in roles and category.name in roles):
 								speciality, year = category.name.split('-')
 								if (speciality in roles and year in roles) or category.name in roles:
-									category.set_permissions(member, overwrite=overwrite)
+									await category.set_permissions(member, overwrite=overwrite)
+									overwrite = permission_overwrite(None)
 									# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
 									for channel in category.channels:
 										# # Actiune default
 										# if channel.name != 'limba-franceza' and channel.name != 'limba-engleza':
 										# 	await channel.set_permissions(member, overwrite=overwrite)
 										# Daca membrul are rolul 'limba-engleza'
-										if channel.name == 'limba-engleza' and channel.name in roles:
+										if channel.name == 'limba-engleza' and channel.name not in roles:
 											await channel.set_permissions(member, overwrite=overwrite)
 										# Daca membrul are rolul 'limba-franceza'
-										elif channel.name == 'limba-franceza' and channel.name in roles:
+										elif channel.name == 'limba-franceza' and channel.name not in roles:
 											await channel.set_permissions(member, overwrite=overwrite)
+
 							# Daca membrul are rolul 'Profesor'
 							elif 'Profesor' in roles:
 								# Pentru fiecare rol din rolurile membrului
@@ -150,7 +152,7 @@ class ChannelRoles(commands.Cog):
 							elif f'Diriginte' in roles:
 								speciality, year = category.name.split('-')
 								if (speciality in roles and year in roles) or category.name in roles:
-									category.set_permissions(member, overwrite=overwrite)
+									await category.set_permissions(member, overwrite=overwrite)
 									overwrite = permission_overwrite(False)
 									# Pentru fiecare canal de categorie se permite accesul
 									for channel in category.channels:
@@ -196,7 +198,7 @@ class ChannelRoles(commands.Cog):
 				# Daca categoria corespunde expresiei
 				if is_valid_group_name(category.name):
 					overwrite = permission_overwrite(None)
-					category.set_permissions(member, overwrite=overwrite)
+					await category.set_permissions(member, overwrite=overwrite)
 					# Daca utilizatorul a introdus denumirea categoriei
 					if unload_category is not None and unload_category == category.name:
 						# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
@@ -237,10 +239,10 @@ class ChannelRoles(commands.Cog):
 				# Daca numele categoriei este nume de grup
 				if is_valid_group_name(category.name):
 					overwrite = permission_overwrite(None)
-					category.set_permissions(unload_member, overwrite=overwrite)
-					# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
-					for channel in category.channels:
-						await channel.set_permissions(unload_member, overwrite=overwrite)
+					await category.set_permissions(unload_member, overwrite=overwrite)
+					# # Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
+					# for channel in category.channels:
+					# 	await channel.set_permissions(unload_member, overwrite=overwrite)
 				count += 1
 				embed = main.embeded(ctx, message, f'Finailzat {count} din {scope} categorii')
 				await msg.edit(embed=embed)
@@ -251,8 +253,16 @@ class ChannelRoles(commands.Cog):
 			embed = main.embeded(ctx, ':x:Error', 'Este necesara mentionarea membrului', discord.Colour.red())
 			msg = await ctx.channel.send(embed=embed)
 
+	# Restaureaza permisiunile membrului la toate categoriile
+	@commands.command()
+	async def upchan(self, ctx):
+		for channel in ctx.guild.channels:
+			await channel.edit(sync_permissions=True)
+
 
 def setup(client):
+	count = 0
+	scope = len(ctx.guild.categories)
 	client.add_cog(ChannelRoles(client))
 
 # https://discordpy.readthedocs.io/en/stable/api.html#categorychannel
