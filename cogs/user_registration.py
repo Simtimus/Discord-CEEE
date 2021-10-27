@@ -2,7 +2,6 @@ import discord
 import os
 import re
 import main
-import config
 import asyncio
 from discord.ext import commands
 
@@ -20,35 +19,36 @@ def is_valid_name(name: str) -> bool:
 	return True
 
 
-def is_valid_group_name(name: str) -> bool:
-	split_group_name = name.split('-')
-	if len(split_group_name) != 2:
-		return False
+def group_role_name(name: str) -> str:
+	split_name = name.split(' ')
+	new_name = ''
+	for word in split_name:
+		new_name += word[0].upper() + word[1:len(word)] + ' '
 
-	if not 64 < ord(split_group_name[0][0]) < 91:  # Daca primul simbol nu este litera mare.
-		return False
-
-	if not 64 < ord(split_group_name[0][1]) < 91 and not 94 < ord(split_group_name[0][1]) < 123:  # Daca al doilea simbol nu este litara.
-		return False
-
-	if len(split_group_name[1]) != 4 and len(split_group_name[1]) != 5:
-		return False
-
-	if not str(split_group_name[1][0:3]).isdigit():  # Daca primele 4 numere nu este o cifra.
-		return False
-
-	if len(split_group_name[1]) == 5 and not 64 < ord(split_group_name[1][-1]) < 91:  # Daca litera de la urma este mare (daca exista)
-		return False
-
-	return True
+	return new_name
 
 
-def embeded(title, description, colour=discord.Colour.blue()):
+def get_roles(member):
+	roles = []
+	for role in member.guild.roles:
+		group_role = re.findall('^[A-Z][a-zA-Z]-[0-9]{4}[A-Z]?$', role.name)
+		if group_role != [] and role.name == group_role[0]:
+			roles.append(role)
+	return roles
+
+
+def embeded(title, description, colour=discord.Colour.blue(), fields=None):
 	embed = discord.Embed(
 		title=title,
 		description=description,
 		colour=colour
 	)
+	if fields is not None:
+		index = 0
+		while index < len(fields):
+			embed.add_field(name=fields[index][0], value=fields[index][1], inline=fields[index][2])
+			index += 1
+
 	return embed
 
 
@@ -72,28 +72,12 @@ def get_disctionary_of_roles(roles):
 def create_buttons(labels):
 	btn_list = [[], [main.Button(style=main.ButtonStyle.red, label="Renunta")]]
 	row = 0
-	if type(labels) is not str:
-		for label in labels:
-			if len(btn_list[row]) >= 5:
-				row += 1
-				btn_list.insert(row, [])
-			btn_list[row].append(main.Button(style=main.ButtonStyle.blue, label=label))
-	else:
-		btn_list[row].append(main.Button(style=main.ButtonStyle.blue, label=labels))
+	for label in labels:
+		if len(btn_list[row]) >= 5 and row == 0:
+			row += 1
+			btn_list.insert(row, [])
+		btn_list[row].append(main.Button(style=main.ButtonStyle.blue, label=label))
 	return btn_list
-
-
-async def do_required_roles_exist(member: discord.Member, asked_roles: [str]):
-	roles = [role.name for role in member.guild.roles]
-	counter = 0
-
-	for asked_role in asked_roles:
-		if asked_role not in roles:
-			await member.guild.create_role(name=asked_role, colour=0x546E7A)
-			if counter == 0:
-				counter += 1
-				embed = embeded('Notificare', 'Au fost adaugat roluri noi de elev.\nEste necesar de repozitionat rolurile', discord.Colour.green())
-				await member.guild.get_channel(904096410532724756).send(embed=embed)
 
 
 # Initierea clasului
@@ -104,9 +88,8 @@ class OnEventTrigger(commands.Cog):
 	# When member joins the guild
 	@commands.Cog.listener()
 	async def on_member_join(self, member: discord.Member):
-		timeout = 120
+		timeout = 60
 		event = None
-		join_link = 'https://discord.gg/7bPVtAWUxu'
 
 		message = f'Introduceti **`Numele Prenumele`** dumneavoastra'
 		embed = embeded('Inregistrare in CEEE', message, discord.Colour.green())
@@ -118,7 +101,7 @@ class OnEventTrigger(commands.Cog):
 		try:
 			event = await self.client.wait_for('message', timeout=timeout, check=check)
 		except asyncio.TimeoutError:
-			message = f'Timpul acordat pentru inregistrare s-a scurs. Pentru a va putea inregistra, accesati linkul de mai jos.\n{join_link}'
+			message = 'Timpul acordat pentru inregistrare s-a scurs. Pentru a va putea inregistra, accesati linkul de mai jos.\nhttps://discord.gg/SQnZ3scFmb'
 			embed = embeded('Inregistrare respinsa', message, discord.Colour.red())
 			await msg.edit(embed=embed, components=[])
 			await member.guild.kick(member)
@@ -126,7 +109,7 @@ class OnEventTrigger(commands.Cog):
 			# Definirea variabilelor
 			name = event.content
 			statut = None
-			roles = [x for x in member.guild.categories if is_valid_group_name(x.name)]
+			roles = get_roles(member)
 			groups = get_disctionary_of_roles(roles)
 			timeout = 30
 			exit_message = ''
@@ -136,7 +119,7 @@ class OnEventTrigger(commands.Cog):
 
 			# Verificarea parametrului name la simboluri
 			if not is_valid_name(name):
-				message = f'Numele introdus contine simboluri. Pentru a va putea inregistra, accesati linkul de mai jos.\n{join_link}'
+				message = 'Numele introdus contine simboluri. Pentru a va putea inregistra, accesati linkul de mai jos.\nhttps://discord.gg/SQnZ3scFmb'
 				embed = embeded('Inregistrare respinsa', message, discord.Colour.red())
 				await member.send(embed=embed, components=[])
 				await member.guild.kick(member)
@@ -166,7 +149,7 @@ class OnEventTrigger(commands.Cog):
 				exit_message = 'Procesul a fost oprit din cauza inactivitatii utilizatorului'
 				statut = 'exit'
 			else:
-				if event.component.label == config.student_role_name or event.component.label == config.teacher_role_name:
+				if event.component.label == 'Elev' or event.component.label == 'Profesor':
 					statut = event.component.label
 				elif event.component.label == 'Renunta':
 					statut = 'exit'
@@ -175,7 +158,7 @@ class OnEventTrigger(commands.Cog):
 
 			phase = 0
 			# Adaugarea rolurilor pentru Elevi
-			if statut == config.student_role_name:
+			if statut == 'Elev':
 				year = None
 				group = None
 				language = None
@@ -208,7 +191,7 @@ class OnEventTrigger(commands.Cog):
 						await event.respond(type=6)
 						phase += 1
 
-					# Phase 1 - Alegerea anului
+					# Phase 1 - Alegerea grupului/specialitatii
 					if phase == 1:
 						labels = groups[group]
 						years = create_buttons(labels)
@@ -266,55 +249,50 @@ class OnEventTrigger(commands.Cog):
 						await event.respond(type=6)
 						phase += 1
 			# Adaugarea rolurilor pentru Profesori
-			elif statut == config.teacher_role_name:
+			elif statut == 'Profesor':
 				# Returnarea mesajului finisat
 				message += f'\n**Statutul:** `{statut}`'
 
 			# Iesirea din commanda
 			if statut == 'exit':
-				message = f'Pentru a va putea inregistra, accesati linkul de mai jos.\n{join_link}'
+				message = 'Pentru a va putea inregistra, accesati linkul de mai jos.\nhttps://discord.gg/SQnZ3scFmb'
 				embed = embeded('Inregistrare respinsa', f'{exit_message}\n{message}', discord.Colour.red())
 				await msg.edit(embed=embed, components=[])
 				await member.guild.kick(member)
 				return
-
-			await do_required_roles_exist(member, [group, year])
 
 			# Adaugarea rolurilor si a nickname-ului
 			await member.edit(nick=name)
 			# Adaugarea rolurilor
 			for role in member.guild.roles:
 				# Elev
-				if statut == config.student_role_name:
+				if statut == 'Elev':
 					# Statutul
 					if role.name == statut:
 						await member.add_roles(role)
-					# Grupa si anul
-					elif role.name == group or role.name == year:
+					# Grupa
+					elif role.name == f'{group}-{year}':
 						await member.add_roles(role)
 					# Limba straina
 					elif role.name == language and role.colour.value == 6323595:
 						await member.add_roles(role)
 				# Profesor
-				if statut == config.teacher_role_name:
+				if statut == 'Profesor':
 					# Profesor?
-					if role.name == config.unconfirmed_teacher_role_name:
+					if role.name == 'Profesor?':
 						await member.add_roles(role)
 				# Membru nou
-				if role.name == config.confirmed_member_name:
+				if role.name == 'Membru':
 					await member.remove_roles(role)
-				elif role.name == config.unconfirmed_member_name:
+				elif role.name == 'Membru Nou':
 					await member.add_roles(role)
 			# Mesaj ca totul sa executat cu success
 			embed = embeded('Inregistrare finisata', message, discord.Colour.green())
 			await msg.edit(embed=embed, components=[])
 
-	@commands.command(aliases=['addsub'])
+	@commands.command(aliases=['add_teacher'])
 	async def add_school_subjects_to_the_teacher(self, ctx, member: discord.Member, arguments):
 		await ctx.channel.purge(limit=1)
-
-		if not member.startswith('@'):
-			return
 
 		embed_message = ''
 		subjects_and_classes = arguments.split(';')
@@ -322,7 +300,7 @@ class OnEventTrigger(commands.Cog):
 		for element in subjects_and_classes:
 			subject, groups = element.split(':')
 			groups = groups.split(',')
-			embed_message += f'{subject} - {", ".join(groups)}; '
+			embed_message += f'{subject} - {", ".join(groups)}'
 			role_element = f'#{subject}'
 			for group in groups:
 				role_element += f'_{group}'
@@ -336,13 +314,7 @@ class OnEventTrigger(commands.Cog):
 				if guild_role.name == role:
 					await member.add_roles(guild_role)
 
-		embed = embeded('Profesor Adaugat', f'Membrul: {member}\nRoluri:\n{embed_message}', discord.Colour.green())
-		await ctx.channel.send(embed=embed)
-
-	@commands.command(aliases=['vememb'])
-	async def verify_members(self, ctx, member: discord.Member, arguments):
-		await ctx.channel.purge(limit=1)
-		embed = embeded('Profesor Adaugat', f'Membrul', discord.Colour.green())
+		embed = main.embeded(ctx, 'Profesor Adaugat', f'Pentru membrul: {member}\nRoluri:\n{embed_message}', discord.Colour.green())
 		await ctx.channel.send(embed=embed)
 
 
