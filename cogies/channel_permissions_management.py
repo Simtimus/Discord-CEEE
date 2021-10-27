@@ -94,7 +94,6 @@ class ChannelRoles(commands.Cog):
 
 			# Daca membrul nu este bot sau Administrator Discord
 			if 'Dev' not in roles and 'Bots' not in roles:
-				print('Something')
 				# Daca membrul nu are inca roluri
 				if 'Membru Nou' or 'Membru' in roles:
 					# Daca membrul este membru nou
