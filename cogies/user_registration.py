@@ -300,7 +300,7 @@ class OnEventTrigger(commands.Cog):
 		for element in subjects_and_classes:
 			subject, groups = element.split(':')
 			groups = groups.split(',')
-			embed_message += f'{subject} - {", ".join(groups)}'
+			embed_message += f'#{subject} - {", ".join(groups)}'
 			role_element = subject
 			for group in groups:
 				role_element += f'_{group}'
