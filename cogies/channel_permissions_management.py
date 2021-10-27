@@ -35,22 +35,6 @@ def is_valid_group_name(name: str) -> bool:
 def permission_overwrite(param):
 	overwrite = discord.PermissionOverwrite()
 	overwrite.view_channel = param
-	# overwrite.read_messages = param
-	# overwrite.send_messages = param
-	# overwrite.add_reactions = param
-	# overwrite.attach_files = param
-	# overwrite.connect = param
-	# overwrite.embed_links = param
-	# overwrite.external_emojis = param
-	# overwrite.mention_everyone = param
-	# overwrite.request_to_speak = param
-	# overwrite.send_tts_messages = param
-	# overwrite.speak = param
-	# overwrite.stream = param
-	# overwrite.use_external_emojis = param
-	# overwrite.read_message_history = param
-	# # overwrite.use_slash_commands = param
-	# overwrite.use_voice_activation = param
 	return overwrite
 
 
@@ -63,6 +47,39 @@ def create_buttons(labels):
 			btn_list.insert(row, [])
 		btn_list[row].append(main.Button(style=main.ButtonStyle.blue, label=label))
 	return btn_list
+
+
+async def sync_channels(ctx, msg):
+	unwanted_categories = ['Public', 'General', 'Developer']
+	unwanted_channels = ['public', 'dezvoltarea-personala']
+	sync_result = {}
+	embed = main.embeded(ctx, 'Sincronizarea canalelor', 'Initializarea sincronizarii', discord.Colour.gold())
+	await msg.edit(embed=embed)
+	count = 0
+	scope = len(ctx.guild.categories)
+	for category in ctx.guild.categories:
+		for channel in category.channels:
+			await channel.edit(sync_permissions=True)
+			# Daca canalul este pentru elevi si profesori
+			if category.name not in unwanted_categories or channel.name not in unwanted_channels:
+				if channel.name not in sync_result.keys():
+					sync_result[channel.name] = [[category.name, channel.id]]
+				elif channel.name in sync_result.keys():
+					if type(sync_result[channel.name]) is list:
+						lis = sync_result[channel.name]
+						lis.append([category.name, channel.id])
+						sync_result[channel.name] = lis
+		count += 1
+		embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat {count} din {scope} categorii', discord.Colour.gold())
+		await msg.edit(embed=embed)
+	# Finalizat
+	embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat', discord.Colour.gold())
+	await msg.edit(embed=embed)
+	return sync_result
+
+
+def adaugarea_elevilor():
+	pass
 
 
 # Initierea clasului
@@ -253,16 +270,18 @@ class ChannelRoles(commands.Cog):
 			embed = main.embeded(ctx, ':x:Error', 'Este necesara mentionarea membrului', discord.Colour.red())
 			msg = await ctx.channel.send(embed=embed)
 
-	# Restaureaza permisiunile membrului la toate categoriile
-	@commands.command()
-	async def upchan(self, ctx):
-		for channel in ctx.guild.channels:
-			await channel.edit(sync_permissions=True)
+	# Asocierea rolurilor si canalelor
+	@commands.command(aliases=['globup'])
+	@commands.has_role('Admin')
+	async def global_update(self, ctx):
+		await ctx.channel.purge(limit=1)
+		embed = main.embeded(ctx, 'Procesul de actualizare', 'Initializare', discord.Colour.purple())
+		msg = await ctx.channel.send(embed=embed)
+		sync_result = await sync_channels(ctx, msg)
+		alt_result = adaugarea_elevilor()
 
 
 def setup(client):
-	count = 0
-	scope = len(ctx.guild.categories)
 	client.add_cog(ChannelRoles(client))
 
 # https://discordpy.readthedocs.io/en/stable/api.html#categorychannel
