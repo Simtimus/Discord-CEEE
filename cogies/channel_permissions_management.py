@@ -237,6 +237,7 @@ class ChannelRoles(commands.Cog):
 				# Daca numele categoriei este nume de grup
 				if is_valid_group_name(category.name):
 					overwrite = permission_overwrite(None)
+					category.set_permissions(unload_member, overwrite=overwrite)
 					# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
 					for channel in category.channels:
 						await channel.set_permissions(unload_member, overwrite=overwrite)
