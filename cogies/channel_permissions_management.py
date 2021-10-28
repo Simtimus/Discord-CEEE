@@ -53,7 +53,7 @@ async def sync_channels(ctx, msg):
 	unwanted_categories = ['Public', 'General', 'Developer']
 	unwanted_channels = ['public', 'dezvoltarea-personala']
 	sync_result = {}
-	embed = main.embeded(ctx, 'Sincronizarea canalelor', 'Initializarea sincronizarii', discord.Colour.gold())
+	embed = main.embeded(ctx, 'Sincronizarea canalelor', 'Initializarea sincronizarii', discord.Colour.orange())
 	await msg.edit(embed=embed)
 	count = 0
 	scope = len(ctx.guild.categories)
@@ -68,16 +68,46 @@ async def sync_channels(ctx, msg):
 					sync_result[channel.name] = [[category.name, channel.id]]
 
 		count += 1
-		embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat {count} din {scope} categorii', discord.Colour.gold())
+		embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat {count} din {scope} categorii', discord.Colour.orange())
 		await msg.edit(embed=embed)
 	# Finalizat
-	embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat', discord.Colour.gold())
+	embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat', discord.Colour.orange())
 	await msg.edit(embed=embed)
 	return sync_result
 
 
-def adaugarea_elevilor():
-	pass
+async def adaugarea_elevilor(ctx, msg):
+	unwanted_categories = ['Public', 'General', 'Developer']
+	unwanted_channels = ['public', 'dezvoltarea-personala']
+	students_id = []
+	teachers_id = []
+	embed = main.embeded(ctx, 'Sincronizarea canalelor', 'Initializarea sincronizarii', discord.Colour.gold())
+	await msg.edit(embed=embed)
+	count = 0
+	scope = len(ctx.guild.members)
+	overwrite = permission_overwrite(True)
+	for member in ctx.guild.members:
+		roles = [role.name for role in member.roles]
+		if ('Elev' or 'Admin' or 'Diriginte') in roles:
+			if 'Elev' in roles:
+				students_id.append(member.id)
+			for category in ctx.guild.categories:
+				if is_valid_group_name(category.name):
+					speciality, year = category.name.split('-')
+					# De scos "or category.name in roles" dupa remake
+					if (speciality in roles and year in roles) or category.name in roles:
+						await category.set_permissions(member, overwrite=overwrite)
+						overwrite = permission_overwrite(True)
+		elif 'Profesor' in roles:
+			teachers_id.append(member.id)
+
+		count += 1
+		embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat {count} din {scope} membri', discord.Colour.gold())
+		await msg.edit(embed=embed)
+	# Finalizat
+	embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat', discord.Colour.gold())
+	await msg.edit(embed=embed)
+	return teachers_id, students_id
 
 
 # Initierea clasului
@@ -190,40 +220,35 @@ class ChannelRoles(commands.Cog):
 	@commands.has_role('Admin')
 	async def unload_category(self, ctx, unload_category=None):
 		await ctx.channel.purge(limit=1)
+
+		# Daca a fost introdusa denumirea unei categorii de utilizator
 		if unload_category is not None:
 			message = f'Restaurare categoria {unload_category}'
+			if is_valid_group_name(unload_category):
+				for category in ctx.guild.categories:
+					if category.name == unload_category:
+						unload_category = [unload_category]
 		else:
 			message = f'Restaurarea categoriilor'
+			unload_category = ctx.guild.categories
 		# Pentru fiecare membru se verifica informatia
 		count = 0
-		scope = len(ctx.guild.members)
+		scope = len(unload_category)
 		embed = main.embeded(ctx, message, f'Finailzat {count} din {scope} categorii')
 		msg = await ctx.channel.send(embed=embed)
-		# Pentru fiecare membru din server
-		for member in ctx.guild.members:
-			roles = [role.name for role in member.roles]
-			# Daca membrul are rol de 'Admin' permisiunile se pastreaza
-			if 'Admin' in roles:
-				count += 1
-				embed = main.embeded(ctx, message, f'Finailzat {count} din {scope} membri')
-				await msg.edit(embed=embed)
-				continue
-			# Pentru fiecare categorie se verifica daca utilizatorul este admis
-			for category in ctx.guild.categories:
-				# Daca categoria corespunde expresiei
-				if is_valid_group_name(category.name):
-					overwrite = permission_overwrite(None)
-					await category.set_permissions(member, overwrite=overwrite)
-					# Daca utilizatorul a introdus denumirea categoriei
-					if unload_category is not None and unload_category == category.name:
-						# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
-						for channel in category.channels:
-							await channel.set_permissions(member, overwrite=overwrite)
-						break
-					# Daca utilizatorul nu a introdus nimic
-					elif unload_category is None:
-						for channel in category.channels:
-							await channel.set_permissions(member, overwrite=overwrite)
+
+		overwrite = permission_overwrite(None)
+		for category in unload_category:
+			if is_valid_group_name(category.name):
+				for member in ctx.guild.members:
+					roles = [role.name for role in member.roles]
+					if 'Admin' in roles:
+						pass
+					else:
+						await category.set_permissions(member, overwrite=overwrite)
+				for channel in category.channels:
+					await channel.edit(sync_permissions=True)
+
 			count += 1
 			embed = main.embeded(ctx, message, f'Finailzat {count} din {scope} membri')
 			await msg.edit(embed=embed)
@@ -276,7 +301,7 @@ class ChannelRoles(commands.Cog):
 		embed = main.embeded(ctx, 'Procesul de actualizare', 'Initializare', discord.Colour.purple())
 		msg = await ctx.channel.send(embed=embed)
 		sync_result = await sync_channels(ctx, msg)
-		alt_result = adaugarea_elevilor()
+		alt_result = await adaugarea_elevilor(ctx, msg)
 
 
 def setup(client):
