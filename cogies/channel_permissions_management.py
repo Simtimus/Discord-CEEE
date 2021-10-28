@@ -95,7 +95,7 @@ async def adaugarea_elevilor(ctx, msg):
 				if is_valid_group_name(category.name):
 					speciality, year = category.name.split('-')
 					# De scos "or category.name in roles" dupa remake
-					if (speciality in roles and year in roles) or category.name in roles:
+					if ((speciality in roles and year in roles) or category.name or 'Admin') in roles:
 						await category.set_permissions(member, overwrite=overwrite)
 						overwrite = permission_overwrite(True)
 		elif 'Profesor' in roles:
