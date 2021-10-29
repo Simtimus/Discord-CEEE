@@ -19,22 +19,27 @@ def is_valid_name(name: str) -> bool:
 	return True
 
 
-def group_role_name(name: str) -> str:
-	split_name = name.split(' ')
-	new_name = ''
-	for word in split_name:
-		new_name += word[0].upper() + word[1:len(word)] + ' '
+def is_valid_group_name(name: str) -> bool:
+	split_group_name = name.split('-')
+	if len(split_group_name) != 2:
+		return False
 
-	return new_name
+	if not 64 < ord(split_group_name[0][0]) < 91:  # Daca primul simbol nu este litera mare.
+		return False
 
+	if not 64 < ord(split_group_name[0][1]) < 91 and not 94 < ord(split_group_name[0][1]) < 123:  # Daca al doilea simbol nu este litara.
+		return False
 
-def get_roles(member):
-	roles = []
-	for role in member.guild.roles:
-		group_role = re.findall('^[A-Z][a-zA-Z]-[0-9]{4}[A-Z]?$', role.name)
-		if group_role != [] and role.name == group_role[0]:
-			roles.append(role)
-	return roles
+	if len(split_group_name[1]) != 4 and len(split_group_name[1]) != 5:
+		return False
+
+	if not str(split_group_name[1][0:3]).isdigit():  # Daca primele 4 numere nu este o cifra.
+		return False
+
+	if len(split_group_name[1]) == 5 and not 64 < ord(split_group_name[1][-1]) < 91:  # Daca litera de la urma este mare (daca exista)
+		return False
+
+	return True
 
 
 def embeded(title, description, colour=discord.Colour.blue()):
@@ -103,7 +108,7 @@ class OnEventTrigger(commands.Cog):
 			# Definirea variabilelor
 			name = event.content
 			statut = None
-			roles = get_roles(member)
+			roles = [x for x in member.guild.categories if is_valid_group_name(x.name)]
 			groups = get_disctionary_of_roles(roles)
 			timeout = 30
 			exit_message = ''
@@ -264,8 +269,8 @@ class OnEventTrigger(commands.Cog):
 					# Statutul
 					if role.name == statut:
 						await member.add_roles(role)
-					# Grupa
-					elif role.name == f'{group}-{year}':
+					# Grupa si anul
+					elif role.name == group or role.name == year:
 						await member.add_roles(role)
 					# Limba straina
 					elif role.name == language and role.colour.value == 6323595:
@@ -288,6 +293,9 @@ class OnEventTrigger(commands.Cog):
 	async def add_school_subjects_to_the_teacher(self, ctx, member: discord.Member, arguments):
 		await ctx.channel.purge(limit=1)
 
+		if not member.startswith('@'):
+			return
+
 		embed_message = ''
 		subjects_and_classes = arguments.split(';')
 		roles_list = []
@@ -309,6 +317,12 @@ class OnEventTrigger(commands.Cog):
 					await member.add_roles(guild_role)
 
 		embed = embeded('Profesor Adaugat', f'Membrul: {member}\nRoluri:\n{embed_message}', discord.Colour.green())
+		await ctx.channel.send(embed=embed)
+
+	@commands.command()
+	async def verify_members(self, ctx, member: discord.Member, arguments):
+		await ctx.channel.purge(limit=1)
+		embed = embeded('Profesor Adaugat', f'Membrul', discord.Colour.green())
 		await ctx.channel.send(embed=embed)
 
 
