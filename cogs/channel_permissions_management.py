@@ -76,7 +76,7 @@ async def adaugarea_elevilor(ctx: discord.Message, msg):
 	await msg.edit(embed=embed)
 	for member in ctx.guild.members:
 		roles = [role.name for role in member.roles]
-		if ('Elev' or 'Admin' or 'Diriginte') in roles:
+		if 'Elev' in roles or 'Diriginte' in roles:
 			for category in ctx.guild.categories:
 				if is_valid_group_name(category.name):
 					speciality, year = category.name.split('-')
