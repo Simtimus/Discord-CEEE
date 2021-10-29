@@ -37,18 +37,12 @@ def get_roles(member):
 	return roles
 
 
-def embeded(title, description, colour=discord.Colour.blue(), fields=None):
+def embeded(title, description, colour=discord.Colour.blue()):
 	embed = discord.Embed(
 		title=title,
 		description=description,
 		colour=colour
 	)
-	if fields is not None:
-		index = 0
-		while index < len(fields):
-			embed.add_field(name=fields[index][0], value=fields[index][1], inline=fields[index][2])
-			index += 1
-
 	return embed
 
 
