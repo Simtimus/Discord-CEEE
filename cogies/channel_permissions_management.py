@@ -77,34 +77,32 @@ async def sync_channels(ctx, msg):
 
 
 async def adaugarea_elevilor(ctx, msg):
-	unwanted_categories = ['Public', 'General', 'Developer']
-	unwanted_channels = ['public', 'dezvoltarea-personala']
+	#unwanted_categories = ['Public', 'General', 'Developer']
+	#unwanted_channels = ['public', 'dezvoltarea-personala']
 	students_id = []
 	teachers_id = []
 	embed = main.embeded(ctx, 'Sincronizarea canalelor', 'Initializarea sincronizarii', discord.Colour.gold())
 	await msg.edit(embed=embed)
 	count = 0
-	scope = len(ctx.guild.members)
 	overwrite = permission_overwrite(True)
 	for member in ctx.guild.members:
+		count += 1
 		roles = [role.name for role in member.roles]
 		if ('Elev' or 'Admin' or 'Diriginte') in roles:
 			if 'Elev' in roles:
 				students_id.append(member.id)
+
 			for category in ctx.guild.categories:
 				if is_valid_group_name(category.name):
 					speciality, year = category.name.split('-')
-					# De scos "or category.name in roles" dupa remake
-					if ((speciality in roles and year in roles) or category.name or 'Admin') in roles:
+					if (speciality in roles and year in roles) or 'Admin' in roles:
 						await category.set_permissions(member, overwrite=overwrite)
-						overwrite = permission_overwrite(True)
 		elif 'Profesor' in roles:
 			teachers_id.append(member.id)
 
-		count += 1
-		embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat {count} din {scope} membri', discord.Colour.gold())
+		embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat {count} din {len(ctx.guild.members)} membri', discord.Colour.gold())
 		await msg.edit(embed=embed)
-	# Finalizat
+
 	embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat', discord.Colour.gold())
 	await msg.edit(embed=embed)
 	return teachers_id, students_id
