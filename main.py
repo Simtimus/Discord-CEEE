@@ -28,9 +28,9 @@ async def on_ready():
 	print(f'Connected as {client.user.name} (ID:{client.user.id})')
 
 
-for filename in os.listdir('./cogies'):
+for filename in os.listdir('cogs'):
 	if filename.endswith('.py'):
-		client.load_extension(f'cogies.{filename[:-3]}')
+		client.load_extension(f'cogs.{filename[:-3]}')
 		cog_names.append(filename[:-3])
 
 if not config.is_local_run:

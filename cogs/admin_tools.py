@@ -17,7 +17,7 @@ class Admin(commands.Cog):
 	async def clear(self, ctx, amount=2):
 		await ctx.channel.purge(limit=amount)
 
-	@commands.command(pass_context=True, aliases=['cog'])
+	@commands.command(pass_context=True, aliases=['cog', 'cogs'])
 	@commands.has_role('Admin')
 	async def cogs(self, ctx, *args):
 		msg_text = f'Salut {ctx.author.mention}. Alegeti operatiunea dorita de dumneavoastra.'
