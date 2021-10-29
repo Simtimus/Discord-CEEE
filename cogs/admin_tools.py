@@ -17,7 +17,7 @@ class Admin(commands.Cog):
 	async def clear(self, ctx, amount=2):
 		await ctx.channel.purge(limit=amount)
 
-	@commands.command(pass_context=True, aliases=['cog', 'cogies'])
+	@commands.command(pass_context=True, aliases=['cog', 'cogs'])
 	@commands.has_role('Admin')
 	async def cogs(self, ctx, *args):
 		msg_text = f'Salut {ctx.author.mention}. Alegeti operatiunea dorita de dumneavoastra.'
@@ -43,7 +43,7 @@ class Admin(commands.Cog):
 
 			for arg in args:
 				if response.component.id == 'load':
-					if f'{arg}.py' not in os.listdir('./cogies'):
+					if f'{arg}.py' not in os.listdir('./cogs'):
 						await ctx.channel.send(f'**[ERROR]** Salut {ctx.author.mention}. Cog-ul: "{arg}" nu exitsa.', components=[])
 					elif arg in main.cog_names:
 						await ctx.channel.send(f'**[ERROR]** Salut {ctx.author.mention}. Cog-ul: "{arg}" a fost deja incarcat.', components=[])
@@ -52,16 +52,16 @@ class Admin(commands.Cog):
 						main.cog_names.append(arg)
 						args_without_error.append(arg)
 				elif response.component.id == 'reload':
-					if f'{arg}.py' not in os.listdir('./cogies'):
+					if f'{arg}.py' not in os.listdir('./cogs'):
 						await ctx.channel.send(f'**[ERROR]** Salut {ctx.author.mention}. Cog-ul: "{arg}" nu exitsa.', components=[])
 					elif arg not in main.cog_names:
 						await ctx.channel.send(f'**[ERROR]** Salut {ctx.author.mention}. Cog-ul: "{arg}" nu a fost incarcat.', components=[])
 					else:
-						self.client.reload_extension(f'cogies.{arg}')
+						self.client.reload_extension(f'cogs.{arg}')
 						args_without_error.append(arg)
 				elif response.component.id == 'unload':
 					if arg in main.cog_names:
-						self.client.unload_extension(f'cogies.{arg}')
+						self.client.unload_extension(f'cogs.{arg}')
 						main.cog_names.remove(arg)
 						args_without_error.append(arg)
 					else:
