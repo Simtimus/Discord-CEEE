@@ -105,36 +105,69 @@ async def set_language_groups_and_teachers(ctx: discord.Message, msg, sync_resul
 	for member in ctx.guild.members:
 		count += 1
 		roles = [role.name for role in member.roles]
-		if ('Elev' or 'Profesor') in roles:
+
+		if 'Elev' in roles:
 			for category in ctx.guild.categories:
 				if is_valid_group_name(category.name):
-					if 'Elev' in roles:
-						speciality, year = category.name.split('-')
-						if speciality in roles and year in roles:
-							for channel in category.channels:
-								if channel.name == 'limba-engleza' and channel.name not in roles:
-									await category.set_permissions(member, view_channel=None)
-								elif channel.name == 'limba-franceza' and channel.name not in roles:
-									await category.set_permissions(member, view_channel=None)
-					elif 'Profesor' in roles:
-						for role in member.roles:
-							if role.name.startswith('#'):
-								splited_discipline = role.name.split('_')
-								group_name = splited_discipline[0]
-								# Daca numele primului element din lista coincide cu categoria
-								if category.name in splited_discipline:
-									# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
-									channels_id = sync_results[group_name[1:]]
-									for element in channels_id:
-										if element[0] == category.name:
-											intercepted_channel = ctx.guild.get_channel(element[1])
-											intercepted_channel.set_permissions(member, view_channel=True)
+					speciality, year = category.name.split('-')
+					if speciality in roles and year in roles:
+						for channel in category.channels:
+							if channel.name == 'limba-engleza' and channel.name not in roles:
+								await channel.set_permissions(member, view_channel=None)
+							elif channel.name == 'limba-franceza' and channel.name not in roles:
+								await channel.set_permissions(member, view_channel=None)
+		elif 'Profesor' in roles:
+			for role in member.roles:
+				if role.name.startswith('#'):
+					splited_discipline = role.name.split('_')
+					group_name = splited_discipline[0][1:]
+					# Daca numele primului element din lista coincide cu categoria
+					for category in ctx.guild.categories:
+						if category.name in splited_discipline:
+							# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
+							channels_id = sync_results[group_name[1:]]
+							for element in channels_id:
+								if element[0] == category.name:
+									intercepted_channel = ctx.guild.get_channel(element[1])
+									intercepted_channel.set_permissions(member, view_channel=True)
 
-									voce_id = sync_results['voce']
-									for element in voce_id:
-										if element[0] == category.name:
-											intercepted_channel = ctx.guild.get_channel(element[1])
-											intercepted_channel.set_permissions(member, view_channel=True)
+							voce_id = sync_results['voce']
+							for element in voce_id:
+								if element[0] == category.name:
+									intercepted_channel = ctx.guild.get_channel(element[1])
+									intercepted_channel.set_permissions(member, view_channel=True)
+
+		# if ('Elev' or 'Profesor') in roles:
+		# 	for category in ctx.guild.categories:
+		# 		if is_valid_group_name(category.name):
+		# 			if 'Elev' in roles:
+		# 				speciality, year = category.name.split('-')
+		# 				if speciality in roles and year in roles:
+		# 					for channel in category.channels:
+		# 						if channel.name == 'limba-engleza' and channel.name not in roles:
+		# 							await channel.set_permissions(member, view_channel=None)
+		# 						elif channel.name == 'limba-franceza' and channel.name not in roles:
+		# 							await channel.set_permissions(member, view_channel=None)
+		# 			elif 'Profesor' in roles:
+		# 				for role in member.roles:
+		# 					if role.name.startswith('#'):
+		# 						splited_discipline = role.name.split('_')
+		# 						group_name = splited_discipline[0]
+		# 						# Daca numele primului element din lista coincide cu categoria
+		# 						if category.name in splited_discipline:
+		# 							# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
+		# 							channels_id = sync_results[group_name[1:]]
+		# 							for element in channels_id:
+		# 								if element[0] == category.name:
+		# 									intercepted_channel = ctx.guild.get_channel(element[1])
+		# 									intercepted_channel.set_permissions(member, view_channel=True)
+		#
+		# 							voce_id = sync_results['voce']
+		# 							for element in voce_id:
+		# 								if element[0] == category.name:
+		# 									intercepted_channel = ctx.guild.get_channel(element[1])
+		# 									intercepted_channel.set_permissions(member, view_channel=True)
+
 		embed = create_embed(ctx, 'Actualizarea permisiunilor', f'Finailzat {count} din {len(ctx.guild.members)} membri', discord.Colour.dark_green())
 		await msg.edit(embed=embed)
 
