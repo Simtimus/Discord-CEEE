@@ -57,7 +57,6 @@ async def sync_channels(ctx: discord.Message, msg):
 	sync_result = {}
 	embed = create_embed(ctx, 'Sincronizarea canalelor', 'Initializarea sincronizarii', discord.Colour.orange())
 	await msg.edit(embed=embed)
-	count = 0
 	for category in ctx.guild.categories:
 		for channel in category.channels:
 			await channel.edit(sync_permissions=True)
@@ -67,11 +66,6 @@ async def sync_channels(ctx: discord.Message, msg):
 					sync_result[channel.name].append([category.name, channel.id])
 				else:
 					sync_result[channel.name] = [[category.name, channel.id]]
-
-		count += 1
-		embed = create_embed(ctx, 'Sincronizarea canalelor', f'Finailzat {count} din {len(ctx.guild.categories)} categorii', discord.Colour.orange())
-		await msg.edit(embed=embed)
-	# Finalizat
 	embed = create_embed(ctx, 'Sincronizarea canalelor', f'Finailzat', discord.Colour.orange())
 	await msg.edit(embed=embed)
 	return sync_result
@@ -80,9 +74,7 @@ async def sync_channels(ctx: discord.Message, msg):
 async def adaugarea_elevilor(ctx: discord.Message, msg):
 	embed = create_embed(ctx, 'Adaugarea membrilor', 'Initializarea procesului', discord.Colour.gold())
 	await msg.edit(embed=embed)
-	count = 0
 	for member in ctx.guild.members:
-		count += 1
 		roles = [role.name for role in member.roles]
 		if ('Elev' or 'Admin' or 'Diriginte') in roles:
 			for category in ctx.guild.categories:
@@ -90,10 +82,6 @@ async def adaugarea_elevilor(ctx: discord.Message, msg):
 					speciality, year = category.name.split('-')
 					if (speciality in roles and year in roles) or 'Admin' in roles:
 						await category.set_permissions(member, view_channel=True)
-
-		embed = create_embed(ctx, 'Adaugarea membrilor', f'Finailzat {count} din {len(ctx.guild.members)} membri', discord.Colour.gold())
-		await msg.edit(embed=embed)
-
 	embed = create_embed(ctx, 'Adaugarea membrilor', f'Finailzat', discord.Colour.gold())
 	await msg.edit(embed=embed)
 
@@ -125,7 +113,7 @@ async def set_language_groups_and_teachers(ctx: discord.Message, msg, sync_resul
 					for category in ctx.guild.categories:
 						if category.name in splited_discipline:
 							# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
-							channels_id = sync_results[group_name[1:]]
+							channels_id = sync_results[group_name]
 							for element in channels_id:
 								if element[0] == category.name:
 									intercepted_channel = ctx.guild.get_channel(element[1])
@@ -283,7 +271,7 @@ class ChannelRoles(commands.Cog):
 
 		# Daca a fost introdusa denumirea unei categorii de utilizator
 		if unload_category is not None:
-			message = f'Restaurare categoria {unload_category}'
+			message = f'Restaurare categoriei {unload_category}'
 			if is_valid_group_name(unload_category):
 				for category in ctx.guild.categories:
 					if category.name == unload_category:
@@ -291,11 +279,10 @@ class ChannelRoles(commands.Cog):
 		else:
 			message = f'Restaurarea categoriilor'
 			unload_category = ctx.guild.categories
-		# Pentru fiecare membru se verifica informatia
-		count = 0
-		scope = len(unload_category)
-		embed = create_embed(ctx, message, f'Finailzat {count} din {scope} categorii')
+
+		embed = create_embed(ctx, message, 'In proces . . .')
 		msg = await ctx.channel.send(embed=embed)
+		# Pentru fiecare membru se verifica informatia
 		for category in unload_category:
 			if is_valid_group_name(category.name):
 				for member in ctx.guild.members:
@@ -306,10 +293,6 @@ class ChannelRoles(commands.Cog):
 						await category.set_permissions(member, view_channel=None)
 				for channel in category.channels:
 					await channel.edit(sync_permissions=True)
-
-			count += 1
-			embed = create_embed(ctx, message, f'Finailzat {count} din {scope} membri')
-			await msg.edit(embed=embed)
 		# Finalizat
 		embed = create_embed(ctx, message, f'Finailzat')
 		await msg.edit(embed=embed)
