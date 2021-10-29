@@ -32,12 +32,6 @@ def is_valid_group_name(name: str) -> bool:
 	return True
 
 
-def permission_overwrite(param):
-	overwrite = discord.PermissionOverwrite()
-	overwrite.view_channel = param
-	return overwrite
-
-
 def create_buttons(labels):
 	btn_list = [[], [main.Button(style=main.ButtonStyle.red, label="Renunta")]]
 	row = 0
@@ -77,33 +71,28 @@ async def sync_channels(ctx, msg):
 
 
 async def adaugarea_elevilor(ctx, msg):
-	students_id = []
-	teachers_id = []
 	embed = main.embeded(ctx, 'Sincronizarea canalelor', 'Initializarea sincronizarii', discord.Colour.gold())
 	await msg.edit(embed=embed)
 	count = 0
-	overwrite = permission_overwrite(True)
 	for member in ctx.guild.members:
 		count += 1
 		roles = [role.name for role in member.roles]
 		if ('Elev' or 'Admin' or 'Diriginte') in roles:
-			if 'Elev' in roles:
-				students_id.append(member.id)
-
 			for category in ctx.guild.categories:
 				if is_valid_group_name(category.name):
 					speciality, year = category.name.split('-')
 					if (speciality in roles and year in roles) or 'Admin' in roles:
-						await category.set_permissions(member, overwrite=overwrite)
-		elif 'Profesor' in roles:
-			teachers_id.append(member.id)
+						await category.set_permissions(member, view_channe=True)
 
 		embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat {count} din {len(ctx.guild.members)} membri', discord.Colour.gold())
 		await msg.edit(embed=embed)
 
 	embed = main.embeded(ctx, 'Actualizarea membrilor', f'Finailzat', discord.Colour.gold())
 	await msg.edit(embed=embed)
-	return teachers_id, students_id
+
+
+async def set_the_study_language_and_teaching_disciplines(ctx: discord.Message) -> None:
+	pass
 
 
 # Initierea clasului
@@ -297,11 +286,9 @@ class ChannelRoles(commands.Cog):
 		embed = main.embeded(ctx, 'Procesul de actualizare', 'Initializare', discord.Colour.purple())
 		msg = await ctx.channel.send(embed=embed)
 		sync_result = await sync_channels(ctx, msg)
-		alt_result = await adaugarea_elevilor(ctx, msg)
+		await adaugarea_elevilor(ctx, msg)
+		await set_the_study_language_and_teaching_disciplines(ctx)
 
 
 def setup(client):
 	client.add_cog(ChannelRoles(client))
-
-# https://discordpy.readthedocs.io/en/stable/api.html#categorychannel
-# https://discord.com/developers/docs/topics/permissions#permission-overwrites
