@@ -77,8 +77,6 @@ async def sync_channels(ctx, msg):
 
 
 async def adaugarea_elevilor(ctx, msg):
-	#unwanted_categories = ['Public', 'General', 'Developer']
-	#unwanted_channels = ['public', 'dezvoltarea-personala']
 	students_id = []
 	teachers_id = []
 	embed = main.embeded(ctx, 'Sincronizarea canalelor', 'Initializarea sincronizarii', discord.Colour.gold())
