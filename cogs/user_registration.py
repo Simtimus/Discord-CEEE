@@ -284,7 +284,7 @@ class OnEventTrigger(commands.Cog):
 			embed = embeded('Inregistrare finisata', message, discord.Colour.green())
 			await msg.edit(embed=embed, components=[])
 
-	@commands.command(aliases=['add_teacher'])
+	@commands.command(aliases=['addsubj'])
 	async def add_school_subjects_to_the_teacher(self, ctx, member: discord.Member, arguments):
 		await ctx.channel.purge(limit=1)
 
@@ -294,7 +294,7 @@ class OnEventTrigger(commands.Cog):
 		for element in subjects_and_classes:
 			subject, groups = element.split(':')
 			groups = groups.split(',')
-			embed_message += f'{subject} - {", ".join(groups)}'
+			embed_message += f'{subject} - {", ".join(groups)}; '
 			role_element = f'#{subject}'
 			for group in groups:
 				role_element += f'_{group}'
@@ -308,7 +308,7 @@ class OnEventTrigger(commands.Cog):
 				if guild_role.name == role:
 					await member.add_roles(guild_role)
 
-		embed = main.embeded(ctx, 'Profesor Adaugat', f'Pentru membrul: {member}\nRoluri:\n{embed_message}', discord.Colour.green())
+		embed = embeded('Profesor Adaugat', f'Membrul: {member}\nRoluri:\n{embed_message}', discord.Colour.green())
 		await ctx.channel.send(embed=embed)
 
 

@@ -55,7 +55,7 @@ async def sync_channels(ctx: discord.Message, msg):
 	unwanted_categories = ['Public', 'General', 'Developer']
 	unwanted_channels = ['public', 'dezvoltarea-personala']
 	sync_result = {}
-	embed = create_embed(ctx, 'Sincronizarea canalelor', 'Initializarea sincronizarii', discord.Colour.orange())
+	embed = create_embed(ctx, 'Sincronizarea canalelor', 'In desfasurare...', discord.Colour.orange())
 	await msg.edit(embed=embed)
 	for category in ctx.guild.categories:
 		for channel in category.channels:
@@ -72,7 +72,7 @@ async def sync_channels(ctx: discord.Message, msg):
 
 
 async def adaugarea_elevilor(ctx: discord.Message, msg):
-	embed = create_embed(ctx, 'Adaugarea membrilor', 'Initializarea procesului', discord.Colour.gold())
+	embed = create_embed(ctx, 'Adaugarea membrilor', 'In desfasurare...', discord.Colour.gold())
 	await msg.edit(embed=embed)
 	for member in ctx.guild.members:
 		roles = [role.name for role in member.roles]
@@ -87,11 +87,9 @@ async def adaugarea_elevilor(ctx: discord.Message, msg):
 
 
 async def set_language_groups_and_teachers(ctx: discord.Message, msg, sync_results) -> None:
-	embed = create_embed(ctx, 'Actualizarea permisiunilor', 'Initializarea processync_resultsului', discord.Colour.dark_green())
+	embed = create_embed(ctx, 'Actualizarea permisiunilor', 'In desfasurare...', discord.Colour.dark_green())
 	await msg.edit(embed=embed)
-	count = 0
 	for member in ctx.guild.members:
-		count += 1
 		roles = [role.name for role in member.roles]
 
 		if 'Elev' in roles:
@@ -117,49 +115,14 @@ async def set_language_groups_and_teachers(ctx: discord.Message, msg, sync_resul
 							for element in channels_id:
 								if element[0] == category.name:
 									intercepted_channel = ctx.guild.get_channel(element[1])
-									intercepted_channel.set_permissions(member, view_channel=True)
+									await intercepted_channel.set_permissions(member, view_channel=True)
 
 							voce_id = sync_results['voce']
 							for element in voce_id:
 								if element[0] == category.name:
 									intercepted_channel = ctx.guild.get_channel(element[1])
-									intercepted_channel.set_permissions(member, view_channel=True)
-
-		# if ('Elev' or 'Profesor') in roles:
-		# 	for category in ctx.guild.categories:
-		# 		if is_valid_group_name(category.name):
-		# 			if 'Elev' in roles:
-		# 				speciality, year = category.name.split('-')
-		# 				if speciality in roles and year in roles:
-		# 					for channel in category.channels:
-		# 						if channel.name == 'limba-engleza' and channel.name not in roles:
-		# 							await channel.set_permissions(member, view_channel=None)
-		# 						elif channel.name == 'limba-franceza' and channel.name not in roles:
-		# 							await channel.set_permissions(member, view_channel=None)
-		# 			elif 'Profesor' in roles:
-		# 				for role in member.roles:
-		# 					if role.name.startswith('#'):
-		# 						splited_discipline = role.name.split('_')
-		# 						group_name = splited_discipline[0]
-		# 						# Daca numele primului element din lista coincide cu categoria
-		# 						if category.name in splited_discipline:
-		# 							# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
-		# 							channels_id = sync_results[group_name[1:]]
-		# 							for element in channels_id:
-		# 								if element[0] == category.name:
-		# 									intercepted_channel = ctx.guild.get_channel(element[1])
-		# 									intercepted_channel.set_permissions(member, view_channel=True)
-		#
-		# 							voce_id = sync_results['voce']
-		# 							for element in voce_id:
-		# 								if element[0] == category.name:
-		# 									intercepted_channel = ctx.guild.get_channel(element[1])
-		# 									intercepted_channel.set_permissions(member, view_channel=True)
-
-		embed = create_embed(ctx, 'Actualizarea permisiunilor', f'Finailzat {count} din {len(ctx.guild.members)} membri', discord.Colour.dark_green())
-		await msg.edit(embed=embed)
-
-	embed = create_embed(ctx, 'Actualizarea permisiunilor', f'Finailzat', discord.Colour.dark_green())
+									await intercepted_channel.set_permissions(member, view_channel=True)
+	embed = create_embed(ctx, 'Actualizarea permisiunilor', f'Finailzat', discord.Colour.green())
 	await msg.edit(embed=embed)
 
 
@@ -280,7 +243,7 @@ class ChannelRoles(commands.Cog):
 			message = f'Restaurarea categoriilor'
 			unload_category = ctx.guild.categories
 
-		embed = create_embed(ctx, message, 'In proces . . .')
+		embed = create_embed(ctx, message, 'In desfasurare...')
 		msg = await ctx.channel.send(embed=embed)
 		# Pentru fiecare membru se verifica informatia
 		for category in unload_category:
