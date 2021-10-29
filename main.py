@@ -5,13 +5,11 @@ import discord
 import asyncio
 import datetime
 from datetime import date
+import database
+import config
 from discord.ext import commands
 from discord_components import *
 # from discord_slash import SlashCommand
-
-# Importarea fisierelor
-import database
-import config
 
 # Initializarea discord
 intents = discord.Intents.all()

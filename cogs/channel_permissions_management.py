@@ -53,7 +53,7 @@ def create_buttons(labels):
 
 async def sync_channels(ctx: discord.Message, msg):
 	unwanted_categories = ['Public', 'General', 'Developer']
-	unwanted_channels = ['public', 'dezvoltarea-personala']
+	unwanted_channels = ['public']
 	sync_result = {}
 	embed = create_embed(ctx, 'Sincronizarea canalelor', 'In desfasurare...', discord.Colour.orange())
 	await msg.edit(embed=embed)
