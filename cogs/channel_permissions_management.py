@@ -98,7 +98,7 @@ async def set_language_groups_and_teachers(ctx: discord.Message, msg, sync_resul
 						for channel in category.channels:
 							if channel.name == config.english_channel_name and channel.name not in roles:
 								await channel.set_permissions(member, view_channel=None)
-							elif channel.name == config.english_channel_name and channel.name not in roles:
+							elif channel.name == config.francais_channel_name and channel.name not in roles:
 								await channel.set_permissions(member, view_channel=None)
 		elif config.teacher_role_name in roles:
 			for role in member.roles:

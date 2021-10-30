@@ -238,7 +238,7 @@ class OnEventTrigger(commands.Cog):
 
 					# Phase 2 - Alegerea limbii straine vorbite
 					if phase == 2:
-						languages = create_buttons(['limba-engleza', 'limba-franceza'])
+						languages = create_buttons([config.english_channel_name, config.francais_channel_name])
 						message += f'\n**Anul:** `{year}`'
 						embed = embeded('Limba straina', message, discord.Colour.green())
 						await msg.edit(embed=embed, components=languages)
@@ -258,7 +258,7 @@ class OnEventTrigger(commands.Cog):
 								statut = 'exit'
 								await event.respond(type=6)
 								break
-							elif event.component.label == 'limba-engleza' or event.component.label == 'limba-franceza':
+							elif event.component.label == config.english_channel_name or event.component.label == config.francais_channel_name:
 								language = event.component.label
 								message += f'\n**Limba straina:** `{language}`'
 								embed = embeded('Asteptare', message, discord.Colour.green())
