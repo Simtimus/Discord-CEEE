@@ -2,6 +2,7 @@ import discord
 import asyncio
 from discord.ext import commands
 import main
+import config
 
 
 # E74C3C - grupa
@@ -76,11 +77,11 @@ async def adaugarea_elevilor(ctx: discord.Message, msg):
 	await msg.edit(embed=embed)
 	for member in ctx.guild.members:
 		roles = [role.name for role in member.roles]
-		if 'Elev' in roles or 'Diriginte' in roles:
+		if config.student_role in roles or config.class_master_role in roles:
 			for category in ctx.guild.categories:
 				if is_valid_group_name(category.name):
 					speciality, year = category.name.split('-')
-					if (speciality in roles and year in roles) or 'Admin' in roles:
+					if (speciality in roles and year in roles) or config.admin_role in roles:
 						await category.set_permissions(member, view_channel=True)
 	embed = create_embed(ctx, 'Adaugarea membrilor', f'Finailzat', discord.Colour.gold())
 	await msg.edit(embed=embed)
@@ -92,17 +93,17 @@ async def set_language_groups_and_teachers(ctx: discord.Message, msg, sync_resul
 	for member in ctx.guild.members:
 		roles = [role.name for role in member.roles]
 
-		if 'Elev' in roles:
+		if config.student_role in roles:
 			for category in ctx.guild.categories:
 				if is_valid_group_name(category.name):
 					speciality, year = category.name.split('-')
 					if speciality in roles and year in roles:
 						for channel in category.channels:
-							if channel.name == 'limba-engleza' and channel.name not in roles:
+							if channel.name == config.english_channel and channel.name not in roles:
 								await channel.set_permissions(member, view_channel=None)
-							elif channel.name == 'limba-franceza' and channel.name not in roles:
+							elif channel.name == config.english_channel and channel.name not in roles:
 								await channel.set_permissions(member, view_channel=None)
-		elif 'Profesor' in roles:
+		elif config.teacher_role in roles:
 			for role in member.roles:
 				if role.name.startswith('#'):
 					splited_discipline = role.name.split('_')
@@ -117,7 +118,7 @@ async def set_language_groups_and_teachers(ctx: discord.Message, msg, sync_resul
 									intercepted_channel = ctx.guild.get_channel(element[1])
 									await intercepted_channel.set_permissions(member, view_channel=True)
 
-							voce_id = sync_results['voce']
+							voce_id = sync_results[config.voice_channel]
 							for element in voce_id:
 								if element[0] == category.name:
 									intercepted_channel = ctx.guild.get_channel(element[1])
@@ -156,40 +157,40 @@ class ChannelRoles(commands.Cog):
 			# Daca membrul nu este bot sau Administrator Discord
 			if 'Dev' not in roles and 'Bots' not in roles:
 				# Daca membrul nu are inca roluri
-				if 'Membru Nou' or 'Membru' in roles:
+				if config.unconfirmed_member or config.confirmed_member in roles:
 					# Daca membrul este membru nou
-					if 'Membru Nou' in roles:
+					if config.unconfirmed_member in roles:
 						for role in member.roles:
 							# Rolul care declara ca membrul este membru nou este inlaturat
-							if role.name == 'Membru Nou':
+							if role.name == config.unconfirmed_member:
 								await member.remove_roles(role)
 							# Adauga rol cu permisiuni extinse
-							if role.name == 'Membru':
+							if role.name == config.confirmed_member:
 								await member.add_roles(role)
 
 					# Pentru fiecare categorie se verifica daca utilizatorul este admis
 					for category in ctx.guild.categories:
 						# Daca se gaseste denumirea categoriei in rolurile membrului
 						if is_valid_group_name(category.name):
-							# Daca membrul are rol de 'Elev'
-							if 'Elev' in roles or ('Elev' in roles and category.name in roles):
+							# Daca membrul are rol de config.student_role
+							if config.student_role in roles or (config.student_role in roles and category.name in roles):
 								speciality, year = category.name.split('-')
 								if (speciality in roles and year in roles) or category.name in roles:
 									await category.set_permissions(member, view_channel=True)
 									# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
 									for channel in category.channels:
 										# # Actiune default
-										# if channel.name != 'limba-franceza' and channel.name != 'limba-engleza':
+										# if channel.name != config.english_channel and channel.name != config.english_channel:
 										# 	await channel.set_permissions(member, overwrite=overwrite)
-										# Daca membrul are rolul 'limba-engleza'
-										if channel.name == 'limba-engleza' and channel.name not in roles:
+										# Daca membrul are rolul config.english_channel
+										if channel.name == config.english_channel and channel.name not in roles:
 											await channel.set_permissions(member, view_channel=True)
-										# Daca membrul are rolul 'limba-franceza'
-										elif channel.name == 'limba-franceza' and channel.name not in roles:
+										# Daca membrul are rolul config.english_channel
+										elif channel.name == config.english_channel and channel.name not in roles:
 											await channel.set_permissions(member, view_channel=True)
 
-							# Daca membrul are rolul 'Profesor'
-							elif 'Profesor' in roles:
+							# Daca membrul are rolul config.teacher_role
+							elif config.teacher_role in roles:
 								# Pentru fiecare rol din rolurile membrului
 								for role in member.roles:
 									# Daca rolul se incepe cu diez #
@@ -201,12 +202,12 @@ class ChannelRoles(commands.Cog):
 											# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
 											for channel in category.channels:
 												# Daca numele canalului este in lista
-												if group_name[1:] == channel.name or channel.name == 'voce':
+												if group_name[1:] == channel.name or channel.name == config.voice_channel:
 													await channel.set_permissions(member, view_channel=True)
-							elif 'Profesor?' in roles:
+							elif config.unconfirmed_teacher_role in roles:
 								pass
 							# Daca membrul are rol de diriginte
-							elif f'Diriginte' in roles:
+							elif config.class_master_role in roles:
 								speciality, year = category.name.split('-')
 								if (speciality in roles and year in roles) or category.name in roles:
 									await category.set_permissions(member, view_channel=True)
@@ -215,8 +216,8 @@ class ChannelRoles(commands.Cog):
 										# Dirigintele nu are permisiuni in canalul 'off-topic'
 										if channel.name == 'off-topic':
 											await channel.set_permissions(member, view_channel=None)
-							# Daca membrul are rol de 'Admin'
-							elif 'Admin' in roles:
+							# Daca membrul are rol deconfig.admin_role
+							elif config.admin_role in roles:
 								for channel in category.channels:
 									await channel.set_permissions(member, view_channel=True)
 			count += 1
@@ -250,7 +251,7 @@ class ChannelRoles(commands.Cog):
 			if is_valid_group_name(category.name):
 				for member in ctx.guild.members:
 					roles = [role.name for role in member.roles]
-					if 'Admin' in roles:
+					if config.admin_role in roles:
 						pass
 					else:
 						await category.set_permissions(member, view_channel=None)
@@ -265,9 +266,9 @@ class ChannelRoles(commands.Cog):
 	@commands.has_role('Admin')
 	async def unload_member(self, ctx, unload_member: discord.Member = None):
 		await ctx.channel.purge(limit=1)
-		# Daca membrul are rol de 'Admin' permisiunile se pastreaza
+		# Daca membrul are rol deconfig.admin_role permisiunile se pastreaza
 		roles = [role.name for role in unload_member.roles]
-		if 'Admin' in roles:
+		if config.admin_role in roles:
 			embed = create_embed(ctx, ':x:Error', 'Membrii cu rol de @Admin nu pot fi lipsiti de permisiuni', discord.Colour.red())
 			msg = await ctx.channel.send(embed=embed)
 			return
