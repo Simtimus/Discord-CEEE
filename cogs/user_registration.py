@@ -72,11 +72,14 @@ def get_disctionary_of_roles(roles):
 def create_buttons(labels):
 	btn_list = [[], [main.Button(style=main.ButtonStyle.red, label="Renunta")]]
 	row = 0
-	for label in labels:
-		if len(btn_list[row]) >= 5 and row == 0:
-			row += 1
-			btn_list.insert(row, [])
-		btn_list[row].append(main.Button(style=main.ButtonStyle.blue, label=label))
+	if type(labels) is not str:
+		for label in labels:
+			if len(btn_list[row]) >= 5:
+				row += 1
+				btn_list.insert(row, [])
+			btn_list[row].append(main.Button(style=main.ButtonStyle.blue, label=label))
+	else:
+		btn_list[row].append(main.Button(style=main.ButtonStyle.blue, label=labels))
 	return btn_list
 
 
@@ -86,11 +89,10 @@ async def do_required_roles_exist(member: discord.Member, asked_roles: [str]):
 
 	for asked_role in asked_roles:
 		if asked_role not in roles:
-			await member.guild.create_roles(name=asked_role, colour=0x546E7A)
+			await member.guild.create_role(name=asked_role, colour=0x546E7A)
 			if counter == 0:
 				counter += 1
-				embed = embeded('Notificare', 'A fost adaugat roluri noi de elev.\nEste necesar de repozitionat rolurile', discord.Colour.green())
-				await member.send(embed=embed)
+				embed = embeded('Notificare', 'Au fost adaugat roluri noi de elev.\nEste necesar de repozitionat rolurile', discord.Colour.green())
 				await member.guild.get_channel(904096410532724756).send(embed=embed)
 
 
@@ -102,8 +104,9 @@ class OnEventTrigger(commands.Cog):
 	# When member joins the guild
 	@commands.Cog.listener()
 	async def on_member_join(self, member: discord.Member):
-		timeout = 60
+		timeout = 120
 		event = None
+		join_link = 'https://discord.gg/7bPVtAWUxu'
 
 		message = f'Introduceti **`Numele Prenumele`** dumneavoastra'
 		embed = embeded('Inregistrare in CEEE', message, discord.Colour.green())
@@ -115,7 +118,7 @@ class OnEventTrigger(commands.Cog):
 		try:
 			event = await self.client.wait_for('message', timeout=timeout, check=check)
 		except asyncio.TimeoutError:
-			message = 'Timpul acordat pentru inregistrare s-a scurs. Pentru a va putea inregistra, accesati linkul de mai jos.\nhttps://discord.gg/SQnZ3scFmb'
+			message = f'Timpul acordat pentru inregistrare s-a scurs. Pentru a va putea inregistra, accesati linkul de mai jos.\n{join_link}'
 			embed = embeded('Inregistrare respinsa', message, discord.Colour.red())
 			await msg.edit(embed=embed, components=[])
 			await member.guild.kick(member)
@@ -133,7 +136,7 @@ class OnEventTrigger(commands.Cog):
 
 			# Verificarea parametrului name la simboluri
 			if not is_valid_name(name):
-				message = 'Numele introdus contine simboluri. Pentru a va putea inregistra, accesati linkul de mai jos.\nhttps://discord.gg/SQnZ3scFmb'
+				message = f'Numele introdus contine simboluri. Pentru a va putea inregistra, accesati linkul de mai jos.\n{join_link}'
 				embed = embeded('Inregistrare respinsa', message, discord.Colour.red())
 				await member.send(embed=embed, components=[])
 				await member.guild.kick(member)
@@ -205,7 +208,7 @@ class OnEventTrigger(commands.Cog):
 						await event.respond(type=6)
 						phase += 1
 
-					# Phase 1 - Alegerea grupului/specialitatii
+					# Phase 1 - Alegerea anului
 					if phase == 1:
 						labels = groups[group]
 						years = create_buttons(labels)
@@ -269,7 +272,7 @@ class OnEventTrigger(commands.Cog):
 
 			# Iesirea din commanda
 			if statut == 'exit':
-				message = 'Pentru a va putea inregistra, accesati linkul de mai jos.\nhttps://discord.gg/SQnZ3scFmb'
+				message = f'Pentru a va putea inregistra, accesati linkul de mai jos.\n{join_link}'
 				embed = embeded('Inregistrare respinsa', f'{exit_message}\n{message}', discord.Colour.red())
 				await msg.edit(embed=embed, components=[])
 				await member.guild.kick(member)
@@ -306,7 +309,7 @@ class OnEventTrigger(commands.Cog):
 			embed = embeded('Inregistrare finisata', message, discord.Colour.green())
 			await msg.edit(embed=embed, components=[])
 
-	@commands.command(aliases=['addsubj'])
+	@commands.command(aliases=['addsub'])
 	async def add_school_subjects_to_the_teacher(self, ctx, member: discord.Member, arguments):
 		await ctx.channel.purge(limit=1)
 
@@ -336,7 +339,7 @@ class OnEventTrigger(commands.Cog):
 		embed = embeded('Profesor Adaugat', f'Membrul: {member}\nRoluri:\n{embed_message}', discord.Colour.green())
 		await ctx.channel.send(embed=embed)
 
-	@commands.command()
+	@commands.command(aliases=['vememb'])
 	async def verify_members(self, ctx, member: discord.Member, arguments):
 		await ctx.channel.purge(limit=1)
 		embed = embeded('Profesor Adaugat', f'Membrul', discord.Colour.green())

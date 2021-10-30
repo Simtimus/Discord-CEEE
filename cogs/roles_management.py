@@ -37,7 +37,7 @@ class RolesManagement(commands.Cog):
 		await ctx.channel.send(embed=embed)
 
 	# Channel cleaning command
-	@commands.command()
+	@commands.command(aliases=['delrole'])
 	@commands.has_role('Admin')
 	async def delete_unused_roles(self, ctx):
 		await ctx.channel.purge(limit=1)
@@ -49,7 +49,7 @@ class RolesManagement(commands.Cog):
 		await ctx.channel.send(embed=embed)
 
 	# Channel cleaning command
-	@commands.command()
+	@commands.command(aliases=['posrole'])
 	@commands.has_role('Admin')
 	async def position_roles(self, ctx):
 		await ctx.channel.purge(limit=1)
