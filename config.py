@@ -1,9 +1,5 @@
 import os
 
-# 546E7A - grupa
-# 11806A - obiectul predat
-# 607D8B - limba straina
-
 cmd_prefix = '.'
 TOKEN = ''
 school_host = ''
@@ -11,19 +7,16 @@ school_user = ''
 school_password = ''
 school_database = ''
 
-admin_role_name = 'Admin'
-teacher_role_name = 'Profesor'
-unconfirmed_teacher_role_name = 'Profesor?'
-class_master_role_name = 'Diriginte'
-student_role_name = 'Elev'
-confirmed_member_name = 'Confirmat'
-unconfirmed_member_name = 'Neconfirmat'
-english_channel_name = 'limba-engleza'
-francais_channel_name = 'limba-franceza'
-commands_channel_name = 'comenzi'
-voice_channel_name = 'voce'
-
-important_roles_name = ['Dev', 'Admin', 'Bots', 'Moderator', 'Profesor', 'Profesor?', 'Diriginte', 'Elev', 'Confirmat', 'Neconfirmat', 'limba-engleza', 'limba-franceza']
+student_role = 'Elev'
+teacher_role = 'Profesor'
+unconfirmed_teacher_role = 'Profesor?'
+class_master_role = 'Diriginte'
+admin_role = 'Admin'
+english_channel = 'limba-engleza'
+francais_channel = 'limba-franceza'
+voice_channel = 'voce'
+confirmed_member = 'Confirmat'
+unconfirmed_member = 'Neconfirmat'
 
 
 is_local_run = None
