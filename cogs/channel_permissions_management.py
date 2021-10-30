@@ -5,9 +5,6 @@ import main
 import config
 
 
-# E74C3C - grupa
-# 11806A - obiectul predat
-# 607D8B - limba straina
 def create_embed(ctx: discord.Message, title: str, description: str, colour: hex=discord.Colour.blue()) -> discord.Embed:
 	embed = discord.Embed(
 		title=title,
@@ -176,20 +173,6 @@ class ChannelRoles(commands.Cog):
 		sync_result = await sync_channels(ctx, msg)
 		await adaugarea_elevilor(ctx, msg)
 		await set_language_groups_and_teachers(ctx, msg, sync_result)
-
-	# Asocierea rolurilor si canalelor
-	@commands.command()
-	@commands.has_role('Admin')
-	async def unconfirm(self, ctx):
-		await ctx.channel.purge(limit=1)
-		for member in ctx.guild.members:
-			for role in ctx.guild.roles:
-				if role.name == config.confirmed_member_name:
-					await member.remove_roles(role)
-				elif role.name == config.unconfirmed_member_name:
-					await member.add_roles(role)
-		embed = create_embed(ctx, 'Procesul de unconfirmare', 'Finisat', discord.Colour.purple())
-		await ctx.channel.send(embed=embed)
 
 
 def setup(client):
