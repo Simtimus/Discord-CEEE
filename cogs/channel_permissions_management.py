@@ -160,7 +160,7 @@ class ChannelRoles(commands.Cog):
 				for channel in category.channels:
 					await channel.edit(sync_permissions=True)
 		# Finalizat
-		embed = create_embed(ctx, message, f'Finailzat')
+		embed = create_embed(ctx, message, f'Finailzat', discord.Colour.green())
 		await msg.edit(embed=embed)
 
 	# Asocierea rolurilor si canalelor
