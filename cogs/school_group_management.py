@@ -169,21 +169,21 @@ class SchoolGroupManagement(commands.Cog):
 
 		default_lessons = []
 		components = [[
-				Button(style=ButtonStyle.blue, label='Matematica', id='Matematica'),
-				Button(style=ButtonStyle.blue, label='Informatica', id='Informatica'),
-				Button(style=ButtonStyle.blue, label='Biologia', id='Biologia'),
-				Button(style=ButtonStyle.blue, label='Chimia', id='Chimia'),
-				Button(style=ButtonStyle.blue, label='Fizica', id='Fizica'),
+				Button(style=ButtonStyle.blue, label='Matematica', id='matematica'),
+				Button(style=ButtonStyle.blue, label='Informatica', id='informatica'),
+				Button(style=ButtonStyle.blue, label='Biologia', id='biologia'),
+				Button(style=ButtonStyle.blue, label='Chimia', id='chimia'),
+				Button(style=ButtonStyle.blue, label='Fizica', id='fizica'),
 			], [
-				Button(style=ButtonStyle.blue, label='Ed. Fizica', id='Ed. Fizica'),
-				Button(style=ButtonStyle.blue, label='Instoria', id='Instoria'),
-				Button(style=ButtonStyle.blue, label='D. P.', id='D. P.'),
-				Button(style=ButtonStyle.blue, label='Ed. P. Societate', id='Ed. P. Societate'),
-				Button(style=ButtonStyle.blue, label='Geografia', id='Geografia'),
+				Button(style=ButtonStyle.blue, label='Ed. Fizica', id='educatia-fizica'),
+				Button(style=ButtonStyle.blue, label='Instoria', id='istoria'),
+				Button(style=ButtonStyle.blue, label='D. P.', id='dezvoltarea-personala'),
+				Button(style=ButtonStyle.blue, label='Ed. P. Societate', id='educatia-pentru-societate'),
+				Button(style=ButtonStyle.blue, label='Geografia', id='geografia'),
 			], [
-				Button(style=ButtonStyle.blue, label='L. Engleza', id='L. Engleza'),
-				Button(style=ButtonStyle.blue, label='L. Franceza', id='L. Franceza'),
-				Button(style=ButtonStyle.blue, label='L. Romana', id='L. Romana'),
+				Button(style=ButtonStyle.blue, label='L. Engleza', id='limba-engleza'),
+				Button(style=ButtonStyle.blue, label='L. Franceza', id='limba-franceza'),
+				Button(style=ButtonStyle.blue, label='L. Romana', id='limba-romana'),
 			], [
 				Button(style=ButtonStyle.green, label='Confirma', id='ok'),
 				Button(style=ButtonStyle.red, label='Anuleaza', id='cancel')
