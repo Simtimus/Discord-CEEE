@@ -64,7 +64,7 @@ def crete_embed_additional_lessons(group_name: str, mention: str, default_lesson
 	return embed
 
 
-async def add_default_lessons(ctx: discord.Message, the_bot_msg: discord.Message, client: discord.Client, group_name: str, lessons: list[str], components: list[list[discord_components.Button]]) -> bool:
+async def add_default_lessons(ctx: discord.Message, the_bot_msg: discord.Message, client: discord.Client, group_name: str, lessons: [str], components: [[discord_components.Button]]) -> bool:
 	def check(the_event):
 		return the_event.message.id == the_bot_msg.id
 
