@@ -149,10 +149,6 @@ async def create_new_group(guild: discord.Guild, group_name: str, default_lesson
 	await category.create_text_channel(config.commands_channel_name)
 	await category.create_voice_channel('voce')
 
-	specialty, year = group_name.split('-')
-	await guild.create_role(name=specialty, colour=0x11806A)
-	await guild.create_role(name=year, colour=0x11806A)
-
 
 class SchoolGroupManagement(commands.Cog):
 	def __init__(self, client):
