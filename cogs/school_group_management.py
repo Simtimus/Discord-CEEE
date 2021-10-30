@@ -40,7 +40,7 @@ def is_group_name_exist(group_name: str, ctx: discord.Message) -> bool:
 	return False
 
 
-def crete_embed_for_default_lessons(group_name: str, mention: str, lessons: list[str]) -> discord.Embed:
+def crete_embed_for_default_lessons(group_name: str, mention: str, lessons: [str]) -> discord.Embed:
 	embed = discord.Embed(title=f'Creaza o grupa nou', description=f'Salut {mention}. Setati categoria, canalele si disciplinele pentru grupa **{group_name}**.\nMesajul va fi sters peste **40 secunde** de inactivitate.', color=discord.Colour.orange())
 	value_lessons = '`Nimic`'
 	if len(lessons) != 0:
@@ -52,7 +52,7 @@ def crete_embed_for_default_lessons(group_name: str, mention: str, lessons: list
 	return embed
 
 
-def crete_embed_additional_lessons(group_name: str, mention: str, default_lessons: list[str]) -> discord.Embed:
+def crete_embed_additional_lessons(group_name: str, mention: str, default_lessons: [str]) -> discord.Embed:
 	embed = discord.Embed(title=f'Creaza o grupa nou', description=f'Salut {mention}. Setati categoria, canalele si disciplinele pentru grupa **{group_name}**.\nComanda va expira in **2 minute** de inactivitate.', color=discord.Colour.gold())
 	default_value_lessons = '`Nimic`'
 	if len(default_lessons) != 0:
@@ -95,7 +95,7 @@ async def add_default_lessons(ctx: discord.Message, the_bot_msg: discord.Message
 				await the_bot_msg.edit(embed=crete_embed_for_default_lessons(group_name, ctx.author.mention, lessons), components=components)
 
 
-async def add_additional_lessons(ctx: discord.Message, the_bot_msg: discord.Message, client: discord.Client) -> (list[str], str):
+async def add_additional_lessons(ctx: discord.Message, the_bot_msg: discord.Message, client: discord.Client) -> ([str], str):
 	def check(the_event_message: discord.Message):
 		return the_event_message.channel.id == ctx.channel.id
 
@@ -137,7 +137,7 @@ async def get_confirmation(ctx: discord.Message, client: discord.Client, the_bot
 			return False
 
 
-async def create_new_group(guild: discord.Guild, group_name: str, default_lessons: list[str], additional_lessons: list[str]):
+async def create_new_group(guild: discord.Guild, group_name: str, default_lessons: [str], additional_lessons: [str]):
 	category = await guild.create_category(group_name)
 	await category.create_text_channel('public')
 	for default_lesson in default_lessons:
