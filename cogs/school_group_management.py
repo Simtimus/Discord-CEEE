@@ -36,7 +36,7 @@ class SchoolGroupManagment(commands.Cog):
 
 	@commands.has_role('Admin')
 	@commands.command(pass_context=True, aliases=['newgroup'])
-	async def new_group(self, ctx: discord.Message, group_name: str=None):
+	async def new_group(self, ctx: discord.Message, group_name: str):
 		if group_name is None:
 			await ctx.channel.send(f'**ERROR**. Trebuie sa introduceti numele grupei dupa comanda. Exemplu: `{config.cmd_prefix}newgroup AA-0119`.')
 			return
@@ -45,23 +45,65 @@ class SchoolGroupManagment(commands.Cog):
 			await ctx.channel.send(f'**ERROR**. Numele grupei `{group_name}` nu corespunde formatului de denumire a grupelor.')
 			return
 
-		embed = discord.Embed(title=f'Creaza o grupa nou', description=f'Salut {ctx.author.mention}. Cu ajutprul acestei comenzi puteti seta usor categoria pentru o grupa **{group_name}**.', color=discord.Colour.gold())
-		embed.add_field(name='Disciplinile grupei', value=f'?', inline=True)
+		lessons = []
+		# available_lessons = ['Matematica', 'L. Romana', 'Biologia', 'Chimia', 'Fizica', 'Ed. Fizica', 'Instoria', 'D. P.', 'Ed. P. societate', 'L. Straina', 'Geografia', 'Informatica']
+
+		embed = discord.Embed(title=f'Creaza o grupa nou', description=f'Salut {ctx.author.mention}. Setati categoria, canalele si disciplinele pentru grupa **{group_name}**.\nMesajul va fi sters peste 40 secunde de inactivitate.', color=discord.Colour.gold())
+		embed.add_field(name='Disciplinile grupei', value=f'`Nimic`', inline=True)
 
 		components = [[
-				Button(style=ButtonStyle.grey, label='Matematica', id='matematica'),
-				Button(style=ButtonStyle.grey, label='L. Romana', id='limba Romana'),
-				Button(style=ButtonStyle.grey, label='Biologia', id='biologia'),
-				Button(style=ButtonStyle.grey, label='Chimia', id='chimia'),
-				Button(style=ButtonStyle.grey, label='Fizica', id='fizica')
-			],
-			[
-				Button(style=ButtonStyle.blue, label='Ed. Fizica', id='ed. fizica'),
-				Button(style=ButtonStyle.grey, label='Instoria', id='istoria'),
-				Button(style=ButtonStyle.green, label='D. P.', id='d. p.')
+				Button(style=ButtonStyle.blue, label='Matematica', id='Matematica'),
+				Button(style=ButtonStyle.blue, label='L. Romana', id='L. Romana'),
+				Button(style=ButtonStyle.blue, label='Biologia', id='Biologia'),
+				Button(style=ButtonStyle.blue, label='Chimia', id='Chimia'),
+				Button(style=ButtonStyle.blue, label='Fizica', id='Fizica'),
+			], [
+				Button(style=ButtonStyle.blue, label='Ed. Fizica', id='Ed. Fizica'),
+				Button(style=ButtonStyle.blue, label='Instoria', id='Instoria'),
+				Button(style=ButtonStyle.blue, label='D. P.', id='D. P.'),
+				Button(style=ButtonStyle.blue, label='Ed. P. societate', id='Ed. P. societate'),
+				Button(style=ButtonStyle.blue, label='L. Straina', id='L. Straina')
+			], [
+				Button(style=ButtonStyle.blue, label='Geografia', id='Geografia'),
+				Button(style=ButtonStyle.blue, label='Informatica', id='Informatica'),
+				Button(style=ButtonStyle.green, label='Confirma', id='ok'),
+				Button(style=ButtonStyle.red, label='Anuleaza', id='cancel')
 			]]
 
-		the_bot_msg = await ctx.channel.send(embed=embed)
+		the_bot_msg = await ctx.channel.send(embed=embed, components=components)
+
+		def check(the_event):
+			return the_event.message.id == the_bot_msg.id
+
+		while True:
+			try:
+				event = await self.client.wait_for('button_click', timeout=39, check=check)
+				await event.respond(type=6)
+			except asyncio.TimeoutError:
+				await the_bot_msg.delete()
+				await ctx.message.delete()
+				return
+			else:
+				if event.component.id == 'cancel':
+					await the_bot_msg.delete()
+					await ctx.message.delete()
+					await ctx.channel.send(content=f'Salut {event.author.mention}, ai anulat crearea unei grupe noi.')
+					return
+				elif event.component.id == 'ok':
+					break
+				elif event.component.id not in lessons:
+					lessons.append(event.component.id)
+					row_count = 0
+					while row_count < len(components):
+						btn_count = 0
+						while btn_count < len(components[row_count]):
+							if components[row_count][btn_count].id == event.component.id:
+								components[row_count][btn_count].disabled = True
+								lessons.append(components[row_count][btn_count].id)
+							btn_count += 1
+						row_count += 1
+
+					await the_bot_msg.edit(embed=embed, components=components)
 
 
 def setup(client):
