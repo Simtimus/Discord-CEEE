@@ -7,6 +7,18 @@ school_user = ''
 school_password = ''
 school_database = ''
 
+student_role = 'Elev'
+teacher_role = 'Profesor'
+unconfirmed_teacher_role = 'Profesor?'
+class_master_role = 'Diriginte'
+admin_role = 'Admin'
+english_channel = 'limba-engleza'
+francais_channel = 'limba-franceza'
+voice_channel = 'voce'
+confirmed_member = 'Confirmat'
+unconfirmed_member = 'Neconfirmat'
+
+
 is_local_run = None
 
 if 'local_config.py' in os.listdir('.'):

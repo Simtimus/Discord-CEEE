@@ -2,6 +2,7 @@ import discord
 import os
 import re
 import main
+import config
 import asyncio
 from discord.ext import commands
 
@@ -148,7 +149,7 @@ class OnEventTrigger(commands.Cog):
 				exit_message = 'Procesul a fost oprit din cauza inactivitatii utilizatorului'
 				statut = 'exit'
 			else:
-				if event.component.label == 'Elev' or event.component.label == 'Profesor':
+				if event.component.label == config.student_role or event.component.label == config.teacher_role:
 					statut = event.component.label
 				elif event.component.label == 'Renunta':
 					statut = 'exit'
@@ -157,7 +158,7 @@ class OnEventTrigger(commands.Cog):
 
 			phase = 0
 			# Adaugarea rolurilor pentru Elevi
-			if statut == 'Elev':
+			if statut == config.student_role:
 				year = None
 				group = None
 				language = None
@@ -248,7 +249,7 @@ class OnEventTrigger(commands.Cog):
 						await event.respond(type=6)
 						phase += 1
 			# Adaugarea rolurilor pentru Profesori
-			elif statut == 'Profesor':
+			elif statut == config.teacher_role:
 				# Returnarea mesajului finisat
 				message += f'\n**Statutul:** `{statut}`'
 
@@ -265,7 +266,7 @@ class OnEventTrigger(commands.Cog):
 			# Adaugarea rolurilor
 			for role in member.guild.roles:
 				# Elev
-				if statut == 'Elev':
+				if statut == config.student_role:
 					# Statutul
 					if role.name == statut:
 						await member.add_roles(role)
@@ -276,14 +277,14 @@ class OnEventTrigger(commands.Cog):
 					elif role.name == language and role.colour.value == 6323595:
 						await member.add_roles(role)
 				# Profesor
-				if statut == 'Profesor':
+				if statut == config.teacher_role:
 					# Profesor?
-					if role.name == 'Profesor?':
+					if role.name == config.unconfirmed_teacher_role:
 						await member.add_roles(role)
 				# Membru nou
-				if role.name == 'Membru':
+				if role.name == config.confirmed_member:
 					await member.remove_roles(role)
-				elif role.name == 'Membru Nou':
+				elif role.name == config.unconfirmed_member:
 					await member.add_roles(role)
 			# Mesaj ca totul sa executat cu success
 			embed = embeded('Inregistrare finisata', message, discord.Colour.green())
