@@ -203,9 +203,9 @@ class ChannelRoles(commands.Cog):
 			msg = await ctx.channel.send(embed=embed)
 
 	# Asocierea rolurilor si canalelor
-	@commands.command(aliases=['globup'])
+	@commands.command()
 	@commands.has_role('Admin')
-	async def global_update(self, ctx):
+	async def update(self, ctx):
 		await ctx.channel.purge(limit=1)
 		embed = create_embed(ctx, 'Procesul de actualizare', 'Initializare', discord.Colour.purple())
 		msg = await ctx.channel.send(embed=embed)
