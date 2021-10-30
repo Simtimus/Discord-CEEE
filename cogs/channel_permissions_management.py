@@ -166,42 +166,6 @@ class ChannelRoles(commands.Cog):
 		embed = create_embed(ctx, message, f'Finailzat')
 		await msg.edit(embed=embed)
 
-	# Restaureaza permisiunile membrului la toate categoriile
-	@commands.command(aliases=['um'])
-	@commands.has_role('Admin')
-	async def unload_member(self, ctx, unload_member: discord.Member = None):
-		await ctx.channel.purge(limit=1)
-		# Daca membrul are rol deconfig.admin_role permisiunile se pastreaza
-		roles = [role.name for role in unload_member.roles]
-		if config.admin_role in roles:
-			embed = create_embed(ctx, ':x:Error', 'Membrii cu rol de @Admin nu pot fi lipsiti de permisiuni', discord.Colour.red())
-			msg = await ctx.channel.send(embed=embed)
-			return
-		if unload_member is not None:
-			message = f'Restaurare membrului {unload_member}'
-			# Pentru fiecare membru se verifica ingroup_formatia
-			count = 0
-			scope = len(ctx.guild.categories)
-			embed = create_embed(ctx, message, f'Finailzat {count} din {scope} membri')
-			msg = await ctx.channel.send(embed=embed)
-			# Pentru fiecare categorie din server
-			for category in ctx.guild.categories:
-				# Daca numele categoriei este nume de grup
-				if is_valid_group_name(category.name):
-					await category.set_permissions(unload_member, view_channel=None)
-					# # Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
-					# for channel in category.channels:
-					# 	await channel.set_permissions(unload_member, overwrite=overwrite)
-				count += 1
-				embed = create_embed(ctx, message, f'Finailzat {count} din {scope} categorii')
-				await msg.edit(embed=embed)
-			# Finalizat
-			embed = create_embed(ctx, message, f'Finailzat')
-			await msg.edit(embed=embed)
-		else:
-			embed = create_embed(ctx, ':x:Error', 'Este necesara mentionarea membrului', discord.Colour.red())
-			msg = await ctx.channel.send(embed=embed)
-
 	# Asocierea rolurilor si canalelor
 	@commands.command()
 	@commands.has_role('Admin')
