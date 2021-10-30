@@ -77,11 +77,11 @@ async def adaugarea_elevilor(ctx: discord.Message, msg):
 	await msg.edit(embed=embed)
 	for member in ctx.guild.members:
 		roles = [role.name for role in member.roles]
-		if config.student_role in roles or config.class_master_role in roles:
+		if config.student_role_name in roles or config.class_master_role_name in roles:
 			for category in ctx.guild.categories:
 				if is_valid_group_name(category.name):
 					speciality, year = category.name.split('-')
-					if (speciality in roles and year in roles) or config.admin_role in roles:
+					if (speciality in roles and year in roles) or config.admin_role_name in roles:
 						await category.set_permissions(member, view_channel=True)
 	embed = create_embed(ctx, 'Adaugarea membrilor', f'Finailzat', discord.Colour.gold())
 	await msg.edit(embed=embed)
@@ -93,17 +93,17 @@ async def set_language_groups_and_teachers(ctx: discord.Message, msg, sync_resul
 	for member in ctx.guild.members:
 		roles = [role.name for role in member.roles]
 
-		if config.student_role in roles:
+		if config.student_role_name in roles:
 			for category in ctx.guild.categories:
 				if is_valid_group_name(category.name):
 					speciality, year = category.name.split('-')
 					if speciality in roles and year in roles:
 						for channel in category.channels:
-							if channel.name == config.english_channel and channel.name not in roles:
+							if channel.name == config.english_channel_name and channel.name not in roles:
 								await channel.set_permissions(member, view_channel=None)
-							elif channel.name == config.english_channel and channel.name not in roles:
+							elif channel.name == config.english_channel_name and channel.name not in roles:
 								await channel.set_permissions(member, view_channel=None)
-		elif config.teacher_role in roles:
+		elif config.teacher_role_name in roles:
 			for role in member.roles:
 				if role.name.startswith('#'):
 					splited_discipline = role.name.split('_')
@@ -118,7 +118,7 @@ async def set_language_groups_and_teachers(ctx: discord.Message, msg, sync_resul
 									intercepted_channel = ctx.guild.get_channel(element[1])
 									await intercepted_channel.set_permissions(member, view_channel=True)
 
-							voce_id = sync_results[config.voice_channel]
+							voce_id = sync_results[config.voice_channel_name]
 							for element in voce_id:
 								if element[0] == category.name:
 									intercepted_channel = ctx.guild.get_channel(element[1])
@@ -156,7 +156,7 @@ class ChannelRoles(commands.Cog):
 			if is_valid_group_name(category.name):
 				for member in ctx.guild.members:
 					roles = [role.name for role in member.roles]
-					if config.admin_role in roles:
+					if config.admin_role_name in roles:
 						pass
 					else:
 						await category.set_permissions(member, view_channel=None)
@@ -184,9 +184,9 @@ class ChannelRoles(commands.Cog):
 		await ctx.channel.purge(limit=1)
 		for member in ctx.guild.members:
 			for role in ctx.guild.roles:
-				if role.name == config.confirmed_member:
+				if role.name == config.confirmed_member_name:
 					await member.remove_roles(role)
-				elif role.name == config.unconfirmed_member:
+				elif role.name == config.unconfirmed_member_name:
 					await member.add_roles(role)
 		embed = create_embed(ctx, 'Procesul de unconfirmare', 'Finisat', discord.Colour.purple())
 		await ctx.channel.send(embed=embed)
