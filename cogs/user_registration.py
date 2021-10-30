@@ -313,7 +313,7 @@ class OnEventTrigger(commands.Cog):
 	async def add_school_subjects_to_the_teacher(self, ctx, member: discord.Member, arguments):
 		await ctx.channel.purge(limit=1)
 
-		if not type(member) is not discord.Member:
+		if type(member) is not discord.Member:
 			embed = embeded('Adaugare profesor', f'Nu a fost introdus un membru.', discord.Colour.red())
 			await ctx.channel.send(embed=embed)
 			return
