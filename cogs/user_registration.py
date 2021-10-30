@@ -92,7 +92,7 @@ async def do_required_roles_exist(member: discord.Member, asked_roles: [str]):
 			await member.guild.create_role(name=asked_role, colour=0x546E7A)
 			if counter == 0:
 				counter += 1
-				embed = embeded('Notificare', 'Au fost adaugat roluri noi de elev.\nEste necesar de repozitionat rolurile', discord.Colour.green())
+				embed = embeded('Notificare', 'Au fost adaugate roluri noi de elev.\nEste necesar de repozitionat rolurile', discord.Colour.green())
 				await member.guild.get_channel(904096410532724756).send(embed=embed)
 
 
