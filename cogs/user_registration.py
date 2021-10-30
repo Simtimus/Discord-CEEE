@@ -80,6 +80,20 @@ def create_buttons(labels):
 	return btn_list
 
 
+async def do_required_roles_exist(member: discord.Member, asked_roles: [str]):
+	roles = [role.name for role in member.guild.roles]
+	counter = 0
+
+	for asked_role in asked_roles:
+		if asked_role not in roles:
+			await member.guild.create_roles(name=asked_role, colour=0x546E7A)
+			if counter == 0:
+				counter += 1
+				embed = embeded('Notificare', 'A fost adaugat roluri noi de elev.\nEste necesar de repozitionat rolurile', discord.Colour.green())
+				await member.send(embed=embed)
+				await member.guild.get_channel(904096410532724756).send(embed=embed)
+
+
 # Initierea clasului
 class OnEventTrigger(commands.Cog):
 	def __init__(self, client):
@@ -260,6 +274,8 @@ class OnEventTrigger(commands.Cog):
 				await msg.edit(embed=embed, components=[])
 				await member.guild.kick(member)
 				return
+
+			await do_required_roles_exist(member, [group, year])
 
 			# Adaugarea rolurilor si a nickname-ului
 			await member.edit(nick=name)
