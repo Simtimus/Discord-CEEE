@@ -177,6 +177,20 @@ class ChannelRoles(commands.Cog):
 		await adaugarea_elevilor(ctx, msg)
 		await set_language_groups_and_teachers(ctx, msg, sync_result)
 
+	# Asocierea rolurilor si canalelor
+	@commands.command()
+	@commands.has_role('Admin')
+	async def unconfirm(self, ctx):
+		await ctx.channel.purge(limit=1)
+		for member in ctx.guild.members:
+			for role in ctx.guild.roles:
+				if role.name == config.confirmed_member:
+					await member.remove_roles(role)
+				elif role.name == config.unconfirmed_member:
+					await member.add_roles(role)
+		embed = create_embed(ctx, 'Procesul de unconfirmare', 'Finisat', discord.Colour.purple())
+		await ctx.channel.send(embed=embed)
+
 
 def setup(client):
 	client.add_cog(ChannelRoles(client))

@@ -17,6 +17,7 @@ francais_channel = 'limba-franceza'
 voice_channel = 'voce'
 confirmed_member = 'Confirmat'
 unconfirmed_member = 'Neconfirmat'
+commands_channel = 'comenzi'
 
 
 is_local_run = None
