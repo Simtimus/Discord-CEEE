@@ -41,7 +41,7 @@ def is_group_name_exist(group_name: str, ctx: discord.Message) -> bool:
 
 
 def crete_embed_for_default_lessons(group_name: str, mention: str, lessons: list[str]) -> discord.Embed:
-	embed = discord.Embed(title=f'Creaza o grupa nou', description=f'Salut {mention}. Setati categoria, canalele si disciplinele pentru grupa **{group_name}**.\nMesajul va fi sters peste **40 secunde** de inactivitate.', color=discord.Colour.gold())
+	embed = discord.Embed(title=f'Creaza o grupa nou', description=f'Salut {mention}. Setati categoria, canalele si disciplinele pentru grupa **{group_name}**.\nMesajul va fi sters peste **40 secunde** de inactivitate.', color=discord.Colour.orange())
 	value_lessons = '`Nimic`'
 	if len(lessons) != 0:
 		value_lessons = ''
@@ -139,11 +139,15 @@ async def get_confirmation(ctx: discord.Message, client: discord.Client, the_bot
 
 async def create_new_group(guild: discord.Guild, group_name: str, default_lessons: list[str], additional_lessons: list[str]):
 	category = await guild.create_category(group_name)
+	await category.create_text_channel('public')
 	for default_lesson in default_lessons:
 		await category.create_text_channel(default_lesson)
 
 	for additional_lesson in additional_lessons:
 		await category.create_text_channel(additional_lesson)
+
+	await category.create_text_channel(config.commands_channel_name)
+	await category.create_voice_channel('voce')
 
 
 class SchoolGroupManagement(commands.Cog):
@@ -213,8 +217,11 @@ class SchoolGroupManagement(commands.Cog):
 		if not await get_confirmation(ctx, self.client, the_bot_msg):
 			return
 
+		await the_bot_msg.edit(embed=embed, components=[])
 		await create_new_group(ctx.guild, group_name, default_lessons, additional_lessons)
-		await ctx.channel.send('Gata')
+
+		embed = embed = discord.Embed(title=f'Creaza o grupa nou', description=f'Grupa **{group_name}** a fost creata cu succes.', color=discord.Colour.green())
+		await the_bot_msg.edit(embed=embed, components=[])
 
 
 def setup(client):
