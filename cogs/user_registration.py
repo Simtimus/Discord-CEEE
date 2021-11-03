@@ -1,10 +1,14 @@
 import discord
-import os
-import re
 import main
 import config
 import asyncio
 from discord.ext import commands
+
+# Primary    |  1  |  blurple
+# Secondary  |  2  |  grey
+# Success    |  3  |  green
+# Danger     |  4  |  red
+# Link       |  5  |  grey, navigates to a URL
 
 
 def is_valid_name(name: str) -> bool:
@@ -69,17 +73,17 @@ def get_disctionary_of_roles(roles):
 	return groups
 
 
-def create_buttons(labels):
-	btn_list = [[], [main.Button(style=main.ButtonStyle.red, label="Renunta")]]
+def create_buttons(labels, btn_style: main.ButtonStyle = 1):
+	btn_list = [[], [main.Button(style=4, label="Renunta")]]
 	row = 0
 	if type(labels) is not str:
 		for label in labels:
 			if len(btn_list[row]) >= 5:
 				row += 1
 				btn_list.insert(row, [])
-			btn_list[row].append(main.Button(style=main.ButtonStyle.blue, label=label))
+			btn_list[row].append(main.Button(style=btn_style, label=label))
 	else:
-		btn_list[row].append(main.Button(style=main.ButtonStyle.blue, label=labels))
+		btn_list[row].append(main.Button(style=btn_style, label=labels))
 	return btn_list
 
 
@@ -105,12 +109,11 @@ class OnEventTrigger(commands.Cog):
 	@commands.Cog.listener()
 	async def on_member_join(self, member: discord.Member):
 		timeout = 120
-		event = None
 		join_link = 'https://discord.gg/7bPVtAWUxu'
 
 		message = f'Introduceti **`Numele Prenumele`** dumneavoastra'
 		embed = embeded('Inregistrare in CEEE', message, discord.Colour.green())
-		msg = await member.send(embed=embed)
+		msg: discord.Message = await member.send(embed=embed)
 
 		def check(the_event_message):
 			return the_event_message.author.id == member.id
@@ -310,7 +313,7 @@ class OnEventTrigger(commands.Cog):
 			await msg.edit(embed=embed, components=[])
 
 	@commands.command(aliases=['addsub'])
-	async def add_school_subjects_to_the_teacher(self, ctx, member: discord.Member, arguments):
+	async def add_school_subjects_to_the_teacher(self, ctx: discord.ext.commands.Context, member: discord.Member, arguments):
 		await ctx.channel.purge(limit=1)
 
 		if type(member) is not discord.Member:
@@ -342,10 +345,131 @@ class OnEventTrigger(commands.Cog):
 		await ctx.channel.send(embed=embed)
 
 	@commands.command(aliases=['vememb'])
-	async def verify_members(self, ctx, member: discord.Member, arguments):
+	async def verify_members(self, ctx, readed_category=None):
 		await ctx.channel.purge(limit=1)
-		embed = embeded('Profesor Adaugat', f'Membrul', discord.Colour.green())
-		await ctx.channel.send(embed=embed)
+		timeout = 30
+		event = None
+		process = None
+		inactivity_message = 'Procesul a fost oprit din cauza inactivitatii utilizatorului'
+		user_cancel_message = 'Procesul a fost oprit de utilizator'
+
+		labels = ['Continuati', 'Statistica']
+		components = create_buttons(labels)
+		embed = embeded('Verificarea membrilor', 'Pentru a incepe, apasati *Continuati*', discord.Colour.blurple())
+		msg: discord.Message = await ctx.channel.send(embed=embed, components=components)
+
+		def check(the_event_message):
+			return the_event_message.author.id == ctx.message.author.id
+		# Alegerea procesului necesar
+		try:
+			event = await self.client.wait_for('button_click', timeout=timeout, check=check)
+		except main.asyncio.TimeoutError:
+			embed = embeded('Verificarea membrilor', inactivity_message, discord.Colour.red())
+			await msg.edit(embed=embed, components=[])
+			await event.respond(type=6)
+			return
+		else:
+			if event.component.label == 'Renunta':
+				embed = embeded('Verificarea membrilor', user_cancel_message, discord.Colour.light_gray())
+				await msg.edit(embed=embed, components=[])
+				await event.respond(type=6)
+				return
+			else:
+				if event.component.label == labels[0]:
+					process = 'get_group'
+				elif event.component.label == labels[1]:
+					process = 'stats'
+			await event.respond(type=6)
+
+		# Vizualizarea datelor statistice
+		if process == 'stats':
+			embed = embeded('Statistica membrilor', 'Prelucrarea datelor . . .', discord.Colour.gold())
+			await msg.edit(embed=embed, components=[])
+			confirmed_members = 0
+			unconfirmed_members = 0
+			for role in ctx.guild.roles:
+				if role.name == config.confirmed_member_name:
+					confirmed_members = len(role.members)
+				elif role.name == config.unconfirmed_member_name:
+					unconfirmed_members = len(role.members)
+			labels = ['Continua']
+			components = create_buttons(labels)
+			message = f'Din {len(ctx.guild.members)}:\n{confirmed_members} - confirmati\n{unconfirmed_members} - neconfirmati'
+			embed = embeded('Statistica membrilor', message, discord.Colour.gold())
+			await msg.edit(embed=embed, components=components)
+
+			try:
+				event = await self.client.wait_for('button_click', timeout=timeout, check=check)
+			except main.asyncio.TimeoutError:
+				embed = embeded('Statistica membrilor', inactivity_message, discord.Colour.red())
+				await msg.edit(embed=embed, components=[])
+				await event.respond(type=6)
+				return
+			else:
+				if event.component.label == 'Renunta':
+					embed = embeded('Statistica membrilor', user_cancel_message, discord.Colour.light_gray())
+					await msg.edit(embed=embed, components=[])
+					await event.respond(type=6)
+					return
+				else:
+					if event.component.label == labels[0]:
+						process = 'get_group'
+			await event.respond(type=6)
+
+		# Introducerea categoriei de la tastatura
+		if process == 'get_group' and readed_category is None:
+			embed = embeded('Alegerea categorieie', 'Introduceti denumirea categoriei de la tastatura . . .', discord.Colour.purple())
+			await msg.edit(embed=embed, components=[])
+			try:
+				event = await self.client.wait_for('message', timeout=timeout, check=check)
+			except asyncio.TimeoutError:
+				embed = embeded('Alegerea categorieie', inactivity_message, discord.Colour.red())
+				await msg.edit(embed=embed, components=[])
+				return
+			else:
+				readed_category = event.content
+				await ctx.channel.purge(limit=1)
+
+				labels = ['Continua']
+				components = create_buttons(labels)
+				embed = embeded('Alegerea categorieie', f'Categoria aleasa: ***{readed_category}***', discord.Colour.gold())
+				await msg.edit(embed=embed, components=components)
+
+				try:
+					event = await self.client.wait_for('button_click', timeout=timeout, check=check)
+				except asyncio.TimeoutError:
+					embed = embeded('Alegerea categorieie', inactivity_message, discord.Colour.red())
+					await msg.edit(embed=embed, components=[])
+					await event.respond(type=6)
+					return
+				else:
+					if event.component.label == 'Renunta':
+						embed = embeded('Alegerea categorieie', user_cancel_message, discord.Colour.light_gray())
+						await msg.edit(embed=embed, components=[])
+						await event.respond(type=6)
+						return
+					else:
+						if event.component.label == labels[0]:
+							process = 'process_members'
+				await event.respond(type=6)
+
+		# Processul de confirmare
+		if process == 'process_members' and readed_category is not None:
+			members_list = []
+			for member in ctx.guild.members:
+				roles = [x.name for x in member.roles]
+				if is_valid_group_name(readed_category):
+					if config.student_role_name in roles:
+						speciality, year = readed_category.split('-')
+
+						if speciality in roles and year in roles:
+							members_list.append(member)
+
+			# Sortarea membrilor
+			members_list.sort(key=lambda x: x.display_name)
+
+			embed = embeded('Procesarea membrilor', f'Lista:\n' + '\n'.join([x.display_name for x in members_list]), discord.Colour.gold())
+			await msg.edit(embed=embed, components=[])
 
 
 def setup(client):

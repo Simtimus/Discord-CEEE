@@ -5,7 +5,7 @@ import main
 import config
 
 
-def create_embed(ctx: discord.Message, title: str, description: str, colour: hex=discord.Colour.blue()) -> discord.Embed:
+def create_embed(ctx: discord.Message, title: str, description: str, colour: hex = discord.Colour.blue()) -> discord.Embed:
 	embed = discord.Embed(
 		title=title,
 		description=description,
@@ -50,16 +50,13 @@ def create_buttons(labels):
 
 
 async def sync_channels(ctx: discord.Message, msg):
-	unwanted_categories = ['Public', 'General', 'Developer']
-	unwanted_channels = ['public']
 	sync_result = {}
 	embed = create_embed(ctx, 'Sincronizarea canalelor', 'In desfasurare...', discord.Colour.orange())
 	await msg.edit(embed=embed)
 	for category in ctx.guild.categories:
-		for channel in category.channels:
-			await channel.edit(sync_permissions=True)
-			# Daca canalul este pentru elevi si profesori
-			if category.name not in unwanted_categories and channel.name not in unwanted_channels:
+		if is_valid_group_name(category.name):
+			for channel in category.channels:
+				await channel.edit(sync_permissions=True)
 				if channel.name in sync_result.keys():
 					sync_result[channel.name].append([category.name, channel.id])
 				else:
