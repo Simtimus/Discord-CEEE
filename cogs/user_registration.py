@@ -376,7 +376,15 @@ class OnEventTrigger(commands.Cog):
 				return
 			else:
 				if event.component.label == labels[0]:
-					process = 'get_group'
+					if readed_category is not None:
+						if is_valid_group_name(readed_category):
+							process = 'process_members'
+						else:
+							embed = embeded('Verificarea membrilor', 'Numele categoriei nu este valid', discord.Colour.red())
+							await msg.edit(embed=embed, components=[])
+							return
+					else:
+						process = 'get_group'
 				elif event.component.label == labels[1]:
 					process = 'stats'
 			await event.respond(type=6)
@@ -450,7 +458,13 @@ class OnEventTrigger(commands.Cog):
 						return
 					else:
 						if event.component.label == labels[0]:
-							process = 'process_members'
+							if is_valid_group_name(readed_category):
+								process = 'process_members'
+							else:
+								embed = embeded('Alegerea categorieie', 'Numele categoriei nu este valid', discord.Colour.red())
+								await msg.edit(embed=embed, components=[])
+								return
+
 				await event.respond(type=6)
 
 		# Processul de confirmare
@@ -460,15 +474,51 @@ class OnEventTrigger(commands.Cog):
 				roles = [x.name for x in member.roles]
 				if is_valid_group_name(readed_category):
 					if config.student_role_name in roles:
-						speciality, year = readed_category.split('-')
+						if config.confirmed_member_name not in roles:
+							speciality, year = readed_category.split('-')
 
-						if speciality in roles and year in roles:
-							members_list.append(member)
+							if speciality in roles and year in roles:
+								members_list.append(member)
 
 			# Sortarea membrilor
 			members_list.sort(key=lambda x: x.display_name)
 
 			embed = embeded('Procesarea membrilor', f'Lista:\n' + '\n'.join([x.display_name for x in members_list]), discord.Colour.gold())
+			await msg.edit(embed=embed, components=[])
+
+			labels = ['Confirma', 'Pas', 'Declina']
+			components = create_buttons(labels)
+			for member in members_list:
+				embed = embeded('Confirmarea membrilor', f'Categoria aleasa: ***{member.display_name}***', discord.Colour.gold())
+				await msg.edit(embed=embed, components=components)
+
+				try:
+					event = await self.client.wait_for('button_click', timeout=timeout, check=check)
+				except asyncio.TimeoutError:
+					embed = embeded('Confirmarea membrilor', inactivity_message, discord.Colour.red())
+					await msg.edit(embed=embed, components=[])
+					await event.respond(type=6)
+					return
+				else:
+					if event.component.label == 'Renunta':
+						embed = embeded('Confirmarea membrilor', user_cancel_message, discord.Colour.light_gray())
+						await msg.edit(embed=embed, components=[])
+						await event.respond(type=6)
+						return
+					else:
+						if event.component.label == labels[0]:
+							for role in ctx.guild.roles:
+								if role.name == config.confirmed_member_name:
+									await member.add_roles(role)
+								elif role.name == config.unconfirmed_member_name:
+									await member.remove_roles(role)
+						elif event.component.label == labels[2]:
+							embed = embeded('Ati fost dat afara din server', 'Pentru a va inregistra in, accesati linkul care a fost trimis anterior', discord.Colour.red())
+							await member.send(embed=embed, components=[])
+							await ctx.guild.kick(member)
+				await event.respond(type=6)
+
+			embed = embeded('Confirmarea membrilor', 'Finalizat', discord.Colour.green())
 			await msg.edit(embed=embed, components=[])
 
 
