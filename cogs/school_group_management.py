@@ -156,7 +156,7 @@ class SchoolGroupManagement(commands.Cog):
 
 	@commands.has_role('Admin')
 	@commands.command(pass_context=True, aliases=['newgroup'])
-	async def new_group(self, ctx: discord.Message, group_name: str):
+	async def new_group(self, ctx: discord.Message, group_name: str=None):
 		if group_name is None:
 			await ctx.channel.send(f'**ERROR**. Trebuie sa introduceti numele grupei dupa comanda. Exemplu: `{config.cmd_prefix}newgroup AA-0119`.')
 			return
