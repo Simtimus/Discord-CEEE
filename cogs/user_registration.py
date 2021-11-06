@@ -525,7 +525,7 @@ class OnEventTrigger(commands.Cog):
 								elif role.name == config.unconfirmed_member_name:
 									await member.remove_roles(role)
 						elif event.component.label == labels[2]:
-							embed = embeded('Ati fost dat afara din server', 'Pentru a va inregistra in serverul Discord CEEE, accesati linkul care a fost trimis anterior', discord.Colour.red())
+							embed = embeded('Ati fost dat afara din server', 'Pentru a va inregistra, accesati linkul care a fost trimis anterior', discord.Colour.red())
 							await member.send(embed=embed, components=[])
 							await ctx.guild.kick(member)
 				await event.respond(type=6)
