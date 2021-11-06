@@ -138,7 +138,7 @@ class ChannelRoles(commands.Cog):
 			if is_valid_group_name(unload_category):
 				for category in ctx.guild.categories:
 					if category.name == unload_category:
-						unload_category = [unload_category]
+						unload_category = [category]
 		else:
 			message = f'Restaurarea categoriilor'
 			unload_category = ctx.guild.categories
