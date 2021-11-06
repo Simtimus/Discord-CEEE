@@ -321,7 +321,7 @@ class OnEventTrigger(commands.Cog):
 			# Mesaj ca totul sa executat cu success
 			embed = embeded('Inregistrare finisata', message, discord.Colour.green())
 			await msg.edit(embed=embed, components=[])
-			new_member_embed = embeded('Membru nou', f'*{member}* - a finisat inregistrarea\nDisplayName: *{name}*', discord.Colour.red())
+			new_member_embed = embeded('Membru nou', f'*{member}* - a finisat inregistrarea\nDisplayName: *{name}*', discord.Colour.green())
 			await new_member.edit(embed=new_member_embed)
 
 	@commands.command(aliases=['addsub'])
@@ -525,7 +525,7 @@ class OnEventTrigger(commands.Cog):
 								elif role.name == config.unconfirmed_member_name:
 									await member.remove_roles(role)
 						elif event.component.label == labels[2]:
-							embed = embeded('Ati fost dat afara din server', 'Pentru a va inregistra in serverul Discord CEEE, accesati linkul care a fost trimis anterior', discord.Colour.red())
+							embed = embeded('Ati fost dat afara din server', 'Pentru a va inregistra, accesati linkul care a fost trimis anterior', discord.Colour.red())
 							await member.send(embed=embed, components=[])
 							await ctx.guild.kick(member)
 				await event.respond(type=6)
