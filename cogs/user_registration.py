@@ -115,6 +115,9 @@ class OnEventTrigger(commands.Cog):
 		embed = embeded('Inregistrare in CEEE', message, discord.Colour.green())
 		msg: discord.Message = await member.send(embed=embed)
 
+		new_member_embed = embeded('Membru nou', f'Se asteapta raspuns de la *{member}*', discord.Colour.gold())
+		new_member = await member.guild.get_channel(904096410532724756).send(embed=new_member_embed)
+
 		def check(the_event_message):
 			return the_event_message.author.id == member.id
 
@@ -125,6 +128,8 @@ class OnEventTrigger(commands.Cog):
 			embed = embeded('Inregistrare respinsa', message, discord.Colour.red())
 			await msg.edit(embed=embed, components=[])
 			await member.guild.kick(member)
+			new_member_embed = embeded('Membru nou', f'*{member}* - a fost dat afara\nMotivul: *inactivitate*', discord.Colour.red())
+			await new_member.edit(embed=new_member_embed)
 		else:
 			# Definirea variabilelor
 			name = event.content
@@ -139,10 +144,13 @@ class OnEventTrigger(commands.Cog):
 
 			# Verificarea parametrului name la simboluri
 			if not is_valid_name(name):
-				message = f'Numele introdus contine simboluri. Pentru a va putea inregistra, accesati linkul de mai jos.\n{join_link}'
+				message = f'Numele introdus nu contine doar simboluri din alfabetul latin sau nu este compus din cel putin Nume Prenume.'
+				message += f'\nPentru a va putea inregistra, accesati linkul de mai jos.\n{join_link}'
 				embed = embeded('Inregistrare respinsa', message, discord.Colour.red())
 				await member.send(embed=embed, components=[])
 				await member.guild.kick(member)
+				new_member_embed = embeded('Membru nou', f'*{member}* - a fost dat afara\nMotivul: *nume incorect*', discord.Colour.red())
+				await new_member.edit(embed=new_member_embed)
 				return
 
 			# Definirea statutului utilizatorului
@@ -279,6 +287,8 @@ class OnEventTrigger(commands.Cog):
 				embed = embeded('Inregistrare respinsa', f'{exit_message}\n{message}', discord.Colour.red())
 				await msg.edit(embed=embed, components=[])
 				await member.guild.kick(member)
+				new_member_embed = embeded('Membru nou', f'*{member}* - a fost dat afara\nMotivul: *membrul a renuntat*', discord.Colour.red())
+				await new_member.edit(embed=new_member_embed)
 				return
 
 			await do_required_roles_exist(member, [group, year])
@@ -311,6 +321,8 @@ class OnEventTrigger(commands.Cog):
 			# Mesaj ca totul sa executat cu success
 			embed = embeded('Inregistrare finisata', message, discord.Colour.green())
 			await msg.edit(embed=embed, components=[])
+			new_member_embed = embeded('Membru nou', f'*{member}* - a finisat inregistrarea\nDisplayName: *{name}*', discord.Colour.red())
+			await new_member.edit(embed=new_member_embed)
 
 	@commands.command(aliases=['addsub'])
 	async def add_school_subjects_to_the_teacher(self, ctx: discord.ext.commands.Context, member: discord.Member, arguments):
