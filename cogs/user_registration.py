@@ -321,7 +321,7 @@ class OnEventTrigger(commands.Cog):
 			# Mesaj ca totul sa executat cu success
 			embed = embeded('Inregistrare finisata', message, discord.Colour.green())
 			await msg.edit(embed=embed, components=[])
-			new_member_embed = embeded('Membru nou', f'*{member}* - a finisat inregistrarea\nDisplayName: *{name}*', discord.Colour.red())
+			new_member_embed = embeded('Membru nou', f'*{member}* - a finisat inregistrarea\nDisplayName: *{name}*', discord.Colour.green())
 			await new_member.edit(embed=new_member_embed)
 
 	@commands.command(aliases=['addsub'])
