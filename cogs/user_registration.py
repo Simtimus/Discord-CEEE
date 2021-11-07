@@ -290,6 +290,7 @@ class OnEventTrigger(commands.Cog):
 			await new_member.edit(embed=new_member_embed)
 
 	@commands.command(aliases=['addsub'])
+	@commands.has_role('Admin')
 	async def add_school_subjects_to_the_teacher(self, ctx: discord.ext.commands.Context, member: discord.Member, arguments):
 		await ctx.channel.purge(limit=1)
 
@@ -322,6 +323,7 @@ class OnEventTrigger(commands.Cog):
 		await ctx.channel.send(embed=embed)
 
 	@commands.command(aliases=['vememb'])
+	@commands.has_role('Admin')
 	async def verify_members(self, ctx, readed_category=None):
 		await ctx.channel.purge(limit=1)
 		timeout = 30
