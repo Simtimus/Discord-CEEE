@@ -3,6 +3,7 @@ import asyncio
 from discord.ext import commands
 import main
 import config
+import validator as valid
 
 
 def create_embed(ctx: discord.Message, title: str, description: str, colour: hex = discord.Colour.blue()) -> discord.Embed:
@@ -13,29 +14,6 @@ def create_embed(ctx: discord.Message, title: str, description: str, colour: hex
 	)
 	embed.set_footer(text=f"Requested by {ctx.author.name}#{ctx.author.discriminator}")
 	return embed
-
-
-def is_valid_group_name(name: str) -> bool:
-	split_group_name = name.split('-')
-	if len(split_group_name) != 2:
-		return False
-
-	if not 64 < ord(split_group_name[0][0]) < 91:  # Daca primul simbol nu este litera mare.
-		return False
-
-	if not 64 < ord(split_group_name[0][1]) < 91 and not 94 < ord(split_group_name[0][1]) < 123:  # Daca al doilea simbol nu este litara.
-		return False
-
-	if len(split_group_name[1]) != 4 and len(split_group_name[1]) != 5:
-		return False
-
-	if not str(split_group_name[1][0:3]).isdigit():  # Daca primele 4 numere nu este o cifra.
-		return False
-
-	if len(split_group_name[1]) == 5 and not 64 < ord(split_group_name[1][-1]) < 91:  # Daca litera de la urma este mare (daca exista)
-		return False
-
-	return True
 
 
 def create_buttons(labels):
@@ -54,7 +32,7 @@ async def sync_channels(ctx: discord.Message, msg):
 	embed = create_embed(ctx, 'Sincronizarea canalelor', 'In desfasurare...', discord.Colour.orange())
 	await msg.edit(embed=embed)
 	for category in ctx.guild.categories:
-		if is_valid_group_name(category.name):
+		if valid.is_valid_group_name(category.name):
 			for channel in category.channels:
 				await channel.edit(sync_permissions=True)
 				if channel.name in sync_result.keys():
@@ -74,7 +52,7 @@ async def adaugarea_elevilor(ctx: discord.Message, msg):
 		if config.confirmed_member_name in roles:
 			if config.student_role_name in roles or config.class_master_role_name in roles:
 				for category in ctx.guild.categories:
-					if is_valid_group_name(category.name):
+					if valid.is_valid_group_name(category.name):
 						speciality, year = category.name.split('-')
 						if (speciality in roles and year in roles) or config.admin_role_name in roles:
 							await category.set_permissions(member, view_channel=True)
@@ -91,7 +69,7 @@ async def set_language_groups_and_teachers(ctx: discord.Message, msg, sync_resul
 		if config.confirmed_member_name in roles:
 			if config.student_role_name in roles:
 				for category in ctx.guild.categories:
-					if is_valid_group_name(category.name):
+					if valid.is_valid_group_name(category.name):
 						speciality, year = category.name.split('-')
 						if speciality in roles and year in roles:
 							for channel in category.channels:
@@ -137,7 +115,7 @@ class ChannelRoles(commands.Cog):
 		# Daca a fost introdusa denumirea unei categorii de utilizator
 		if unload_category is not None:
 			message = f'Restaurare categoriei {unload_category}'
-			if is_valid_group_name(unload_category):
+			if valid.is_valid_group_name(unload_category):
 				for category in ctx.guild.categories:
 					if category.name == unload_category:
 						unload_category = [category]
@@ -149,7 +127,7 @@ class ChannelRoles(commands.Cog):
 		msg = await ctx.channel.send(embed=embed)
 		# Pentru fiecare membru se verifica informatia
 		for category in unload_category:
-			if is_valid_group_name(category.name):
+			if valid.is_valid_group_name(category.name):
 				for member in ctx.guild.members:
 					roles = [role.name for role in member.roles]
 					if config.admin_role_name in roles:
