@@ -3,48 +3,13 @@ import main
 import config
 import asyncio
 from discord.ext import commands
+import validator as valid
 
 # Primary    |  1  |  blurple
 # Secondary  |  2  |  grey
 # Success    |  3  |  green
 # Danger     |  4  |  red
 # Link       |  5  |  grey, navigates to a URL
-
-
-def is_valid_name(name: str) -> bool:
-	split_name = name.split(' ')
-	if len(split_name) != 2 and len(split_name) != 3:
-		return False
-
-	for word in split_name:
-		for char in word:
-			if not 64 < ord(char) < 91 and not 94 < ord(char) < 123:
-				return False
-
-	return True
-
-
-def is_valid_group_name(name: str) -> bool:
-	split_group_name = name.split('-')
-	if len(split_group_name) != 2:
-		return False
-
-	if not 64 < ord(split_group_name[0][0]) < 91:  # Daca primul simbol nu este litera mare.
-		return False
-
-	if not 64 < ord(split_group_name[0][1]) < 91 and not 94 < ord(split_group_name[0][1]) < 123:  # Daca al doilea simbol nu este litara.
-		return False
-
-	if len(split_group_name[1]) != 4 and len(split_group_name[1]) != 5:
-		return False
-
-	if not str(split_group_name[1][0:3]).isdigit():  # Daca primele 4 numere nu este o cifra.
-		return False
-
-	if len(split_group_name[1]) == 5 and not 64 < ord(split_group_name[1][-1]) < 91:  # Daca litera de la urma este mare (daca exista)
-		return False
-
-	return True
 
 
 def embeded(title, description, colour=discord.Colour.blue()):
@@ -134,7 +99,7 @@ class OnEventTrigger(commands.Cog):
 			# Definirea variabilelor
 			name = event.content
 			statut = None
-			roles = [x for x in member.guild.categories if is_valid_group_name(x.name)]
+			roles = [x for x in member.guild.categories if valid.is_valid_group_name(x.name)]
 			groups = get_disctionary_of_roles(roles)
 			timeout = 30
 			exit_message = ''
@@ -143,7 +108,7 @@ class OnEventTrigger(commands.Cog):
 			group = ''
 
 			# Verificarea parametrului name la simboluri
-			if not is_valid_name(name):
+			if not valid.is_valid_member_name(name):
 				message = f'Numele introdus nu contine doar simboluri din alfabetul latin sau nu este compus din cel putin Nume Prenume.'
 				message += f'\nPentru a va putea inregistra, accesati linkul de mai jos.\n{join_link}'
 				embed = embeded('Inregistrare respinsa', message, discord.Colour.red())
@@ -389,7 +354,7 @@ class OnEventTrigger(commands.Cog):
 			else:
 				if event.component.label == labels[0]:
 					if readed_category is not None:
-						if is_valid_group_name(readed_category):
+						if valid.is_valid_group_name(readed_category):
 							process = 'process_members'
 						else:
 							embed = embeded('Verificarea membrilor', 'Numele categoriei nu este valid', discord.Colour.red())
@@ -470,7 +435,7 @@ class OnEventTrigger(commands.Cog):
 						return
 					else:
 						if event.component.label == labels[0]:
-							if is_valid_group_name(readed_category):
+							if valid.is_valid_group_name(readed_category):
 								process = 'process_members'
 							else:
 								embed = embeded('Alegerea categorieie', 'Numele categoriei nu este valid', discord.Colour.red())
@@ -484,7 +449,7 @@ class OnEventTrigger(commands.Cog):
 			members_list = []
 			for member in ctx.guild.members:
 				roles = [x.name for x in member.roles]
-				if is_valid_group_name(readed_category):
+				if valid.is_valid_group_name(readed_category):
 					if config.student_role_name in roles:
 						if config.confirmed_member_name not in roles:
 							speciality, year = readed_category.split('-')

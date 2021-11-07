@@ -5,6 +5,7 @@ import main
 import config
 from discord.ext import commands
 from discord_components import DiscordComponents, Button, ButtonStyle
+import validator as valid
 
 
 def create_embed(ctx: discord.Message, title: str, description: str, colour: hex = discord.Colour.blue()) -> discord.Embed:
