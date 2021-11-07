@@ -21,7 +21,7 @@ def is_valid_group_name(name: str) -> bool:
 	if not str(split_group_name[1][0:3]).isdigit():  # Daca primele 4 numere nu sunt un numar.
 		return False
 
-	if len(split_group_name[1]) == 5 and split_group_name[1][-1] not in config.lowercase:  # Dac exista o litera la urma si nu este mica.
+	if len(split_group_name[1]) == 5 and split_group_name[1][-1] not in config.uppercase:  # Dac exista o litera la urma si nu este mica.
 		return False
 
 	return True
