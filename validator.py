@@ -29,7 +29,7 @@ def is_valid_group_name(name: str) -> bool:
 
 def is_valid_member_name(name: str) -> bool:
 	split_name = name.split(' ')
-	if not 1 < len(split_name) > 4:
+	if not 1 < len(split_name) < 4:
 		return False
 
 	for word in split_name:
