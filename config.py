@@ -23,7 +23,7 @@ francais_channel_name = 'limba-franceza'
 commands_channel_name = 'comenzi'
 voice_channel_name = 'voce'
 
-important_roles_name = ['Dev', 'Admin', 'Bots', 'Moderator', 'Profesor', 'Profesor?', 'Diriginte', 'Elev', 'Confirmat', 'Neconfirmat', 'limba-engleza', 'limba-franceza']
+important_roles_name = ['Dev', admin_role_name, 'Bots', 'Moderator', teacher_role_name, unconfirmed_teacher_role_name, class_master_role_name, student_role_name, confirmed_member_name, unconfirmed_member_name, english_channel_name, francais_channel_name]
 
 lowercase = ['a', 'ă', 'â',  'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'î', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 'ș', 't', 'ț', 'u', 'v', 'w', 'x', 'y', 'z']
 uppercase = [a.upper() for a in lowercase]
