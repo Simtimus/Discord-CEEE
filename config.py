@@ -25,6 +25,8 @@ voice_channel_name = 'voce'
 
 important_roles_name = ['Dev', 'Admin', 'Bots', 'Moderator', 'Profesor', 'Profesor?', 'Diriginte', 'Elev', 'Confirmat', 'Neconfirmat', 'limba-engleza', 'limba-franceza']
 
+lowercase = ['a', 'ă', 'â',  'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'î', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 'ș', 't', 'ț', 'u', 'v', 'w', 'x', 'y', 'z']
+uppercase = [a.upper() for a in lowercase]
 
 is_local_run = None
 
