@@ -116,7 +116,8 @@ async def get_confirmation(ctx: discord.Message, client: discord.Client, the_bot
 
 
 async def create_new_group(guild: discord.Guild, group_name: str, default_lessons: [str], additional_lessons: [str]):
-	category = await guild.create_category(group_name)
+	overwrites = {guild.default_role: discord.PermissionOverwrite(view_channel=False)}
+	category = await guild.create_category(group_name, overwrites=overwrites)
 	await category.create_text_channel('public')
 	for default_lesson in default_lessons:
 		await category.create_text_channel(default_lesson)
@@ -126,6 +127,16 @@ async def create_new_group(guild: discord.Guild, group_name: str, default_lesson
 
 	await category.create_text_channel(config.commands_channel_name)
 	await category.create_voice_channel('voce')
+	
+	
+def create_embed(ctx: discord.Message, title: str, description: str, colour: hex = discord.Colour.blue()) -> discord.Embed:
+	embed = discord.Embed(
+		title=title,
+		description=description,
+		colour=colour
+	)
+	embed.set_footer(text=f"Requested by {ctx.author.name}#{ctx.author.discriminator}")
+	return embed
 
 
 class SchoolGroupManagement(commands.Cog):
@@ -134,7 +145,7 @@ class SchoolGroupManagement(commands.Cog):
 
 	@commands.has_role('Admin')
 	@commands.command(pass_context=True, aliases=['newgroup'])
-	async def new_group(self, ctx: discord.Message, group_name: str=None):
+	async def new_group(self, ctx: discord.Message, group_name: str = None):
 		if group_name is None:
 			await ctx.channel.send(f'**ERROR**. Trebuie sa introduceti numele grupei dupa comanda. Exemplu: `{config.cmd_prefix}newgroup AA-0119`.')
 			return
@@ -200,6 +211,50 @@ class SchoolGroupManagement(commands.Cog):
 
 		embed = embed = discord.Embed(title=f'Creaza o grupa nou', description=f'Grupa **{group_name}** a fost creata cu succes.', color=discord.Colour.green())
 		await the_bot_msg.edit(embed=embed, components=[])
+
+	@commands.has_role('Admin')
+	@commands.command(pass_context=True, aliases=['delgroup'])
+	async def delete_group_category(self, ctx, group_name: str = None):
+		await ctx.channel.purge(limit=1)
+		timeout = 30
+		inactivity_message = 'Procesul a fost oprit din cauza inactivitatii utilizatorului'
+
+		embed = create_embed(ctx, 'Stergerea Categoriei', 'Introduceti denumirea categoriei de la tastatura . . .', discord.Colour.blurple())
+		msg = await ctx.channel.send(embed=embed)
+
+		def check(the_event_message):
+			return the_event_message.author.id == ctx.message.author.id
+
+		# Introducerea grupului de la tastatura
+		if group_name is None:
+			embed = create_embed(ctx, 'Stergerea Categoriei', 'Introduceti denumirea categoriei de la tastatura . . .', discord.Colour.blurple())
+			await msg.edit(embed=embed, components=[])
+			try:
+				event = await self.client.wait_for('message', timeout=timeout, check=check)
+			except asyncio.TimeoutError:
+				embed = create_embed(ctx, 'Stergerea Categoriei', inactivity_message, discord.Colour.red())
+				await msg.edit(embed=embed, components=[])
+				return
+			else:
+				group_name = event.content
+				await ctx.channel.purge(limit=1)
+
+		if valid.is_valid_group_name(group_name):
+			for category in ctx.guild.categories:
+				if category.name == group_name:
+					embed = create_embed(ctx, 'Stergerea Categoriei', f'Se sterge categoria ***{group_name}***', discord.Colour.gold())
+					await msg.edit(embed=embed, components=[])
+					for channel in category.channels:
+						await channel.delete()
+					await category.delete()
+					embed = create_embed(ctx, 'Stergerea Categoriei', 'Categoria a fost stearsa cu success!', discord.Colour.green())
+					await msg.edit(embed=embed, components=[])
+					return
+			embed = create_embed(ctx, 'Stergerea Categoriei', 'Nu a fost gasita categoria!', discord.Colour.light_grey())
+			await msg.edit(embed=embed, components=[])
+		else:
+			embed = create_embed(ctx, 'Stergerea Categoriei', 'Numele categoriei este incorect sau nu corespunde unui grup', discord.Colour.red())
+			await msg.edit(embed=embed, components=[])
 
 
 def setup(client):

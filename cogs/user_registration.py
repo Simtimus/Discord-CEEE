@@ -73,10 +73,14 @@ class OnEventTrigger(commands.Cog):
 	# When member joins the guild
 	@commands.Cog.listener()
 	async def on_member_join(self, member: discord.Member):
+		# verificare daca membrul este bot
+		if member.bot:
+			return
+
 		timeout = 120
 		join_link = 'https://discord.gg/7bPVtAWUxu'
 
-		message = f'Introduceti **`Numele Prenumele`** dumneavoastra'
+		message = f'Transmiteti botului mesaj ce contine **`Numele Prenumele`** dumneavoastra'
 		embed = embeded('Inregistrare in CEEE', message, discord.Colour.green())
 		msg: discord.Message = await member.send(embed=embed)
 
@@ -108,7 +112,7 @@ class OnEventTrigger(commands.Cog):
 			group = ''
 
 			# Verificarea parametrului name la simboluri
-			if not valid.is_valid_member_name(name):
+			if valid.is_valid_member_name(name):
 				message = f'Numele introdus nu contine doar simboluri din alfabetul latin sau nu este compus din cel putin Nume Prenume.'
 				message += f'\nPentru a va putea inregistra, accesati linkul de mai jos.\n{join_link}'
 				embed = embeded('Inregistrare respinsa', message, discord.Colour.red())
