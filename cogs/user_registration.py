@@ -73,6 +73,10 @@ class OnEventTrigger(commands.Cog):
 	# When member joins the guild
 	@commands.Cog.listener()
 	async def on_member_join(self, member: discord.Member):
+		# verificare daca membrul este bot
+		if member.bot:
+			return
+
 		timeout = 120
 		join_link = 'https://discord.gg/7bPVtAWUxu'
 
