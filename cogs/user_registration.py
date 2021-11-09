@@ -76,7 +76,7 @@ class OnEventTrigger(commands.Cog):
 		timeout = 120
 		join_link = 'https://discord.gg/7bPVtAWUxu'
 
-		message = f'Introduceti **`Numele Prenumele`** dumneavoastra'
+		message = f'Transmiteti botului mesaj ce contine **`Numele Prenumele`** dumneavoastra'
 		embed = embeded('Inregistrare in CEEE', message, discord.Colour.green())
 		msg: discord.Message = await member.send(embed=embed)
 
