@@ -108,7 +108,7 @@ class OnEventTrigger(commands.Cog):
 			group = ''
 
 			# Verificarea parametrului name la simboluri
-			if not valid.is_valid_member_name(name):
+			if valid.is_valid_member_name(name):
 				message = f'Numele introdus nu contine doar simboluri din alfabetul latin sau nu este compus din cel putin Nume Prenume.'
 				message += f'\nPentru a va putea inregistra, accesati linkul de mai jos.\n{join_link}'
 				embed = embeded('Inregistrare respinsa', message, discord.Colour.red())
