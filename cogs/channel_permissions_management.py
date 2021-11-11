@@ -49,7 +49,7 @@ async def adaugarea_elevilor(ctx: discord.Message, msg):
 	await msg.edit(embed=embed)
 	for member in ctx.guild.members:
 		roles = [role.name for role in member.roles]
-		if config.confirmed_member_name in roles:
+		if config.unconfirmed_member_name not in roles:
 			if config.student_role_name in roles or config.class_master_role_name in roles:
 				for category in ctx.guild.categories:
 					if valid.is_valid_group_name(category.name):
@@ -66,7 +66,7 @@ async def set_language_groups_and_teachers(ctx: discord.Message, msg, sync_resul
 	for member in ctx.guild.members:
 		roles = [role.name for role in member.roles]
 
-		if config.confirmed_member_name in roles:
+		if config.unconfirmed_member_name not in roles:
 			if config.student_role_name in roles:
 				for category in ctx.guild.categories:
 					if valid.is_valid_group_name(category.name):
