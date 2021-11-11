@@ -124,8 +124,8 @@ class OnEventTrigger(commands.Cog):
 
 			# Definirea statutului utilizatorului
 			statuses = [[
-				main.Button(style=main.ButtonStyle.blue, label="Elev"),
-				main.Button(style=main.ButtonStyle.blue, label="Profesor"),
+				main.Button(style=main.ButtonStyle.blue, label=config.student_role_name),
+				main.Button(style=main.ButtonStyle.blue, label=config.teacher_role_name),
 			], [
 				main.Button(style=main.ButtonStyle.red, label="Renunta")
 			]]
@@ -260,7 +260,8 @@ class OnEventTrigger(commands.Cog):
 				await new_member.edit(embed=new_member_embed)
 				return
 
-			await do_required_roles_exist(member, [group, year])
+			if statut == config.student_role_name:
+				await do_required_roles_exist(member, [group, year])
 
 			# Adaugarea rolurilor si a nickname-ului
 			await member.edit(nick=name)
@@ -280,12 +281,9 @@ class OnEventTrigger(commands.Cog):
 				# Profesor
 				if statut == config.teacher_role_name:
 					# Profesor?
-					if role.name == config.unconfirmed_teacher_role_name:
+					if role.name == config.teacher_role_name:
 						await member.add_roles(role)
-				# Membru nou
-				if role.name == config.confirmed_member_name:
-					await member.remove_roles(role)
-				elif role.name == config.unconfirmed_member_name:
+				if role.name == config.unconfirmed_member_name:
 					await member.add_roles(role)
 			# Mesaj ca totul sa executat cu success
 			embed = embeded('Inregistrare finisata', message, discord.Colour.green())
@@ -321,6 +319,8 @@ class OnEventTrigger(commands.Cog):
 			for guild_role in ctx.guild.roles:
 				if guild_role.name == role:
 					await member.add_roles(guild_role)
+				elif guild_role.name == config.unconfirmed_member_name:
+					await member.remove_roles(guild_role)
 
 		embed = embeded('Profesor Adaugat', f'Membrul: {member}\nRoluri:\n{embed_message}', discord.Colour.green())
 		await ctx.channel.send(embed=embed)
@@ -489,9 +489,7 @@ class OnEventTrigger(commands.Cog):
 					else:
 						if event.component.label == labels[0]:
 							for role in ctx.guild.roles:
-								if role.name == config.confirmed_member_name:
-									await member.add_roles(role)
-								elif role.name == config.unconfirmed_member_name:
+								if role.name == config.unconfirmed_member_name:
 									await member.remove_roles(role)
 						elif event.component.label == labels[2]:
 							message = 'Inregistrarea dumneavoastra a fost respinsa de Admin\nPentru a va inregistra, accesati linkul care a fost trimis anterior'
