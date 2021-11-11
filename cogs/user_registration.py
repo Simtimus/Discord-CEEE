@@ -379,13 +379,11 @@ class OnEventTrigger(commands.Cog):
 			confirmed_members = 0
 			unconfirmed_members = 0
 			for role in ctx.guild.roles:
-				if role.name == config.confirmed_member_name:
-					confirmed_members = len(role.members)
-				elif role.name == config.unconfirmed_member_name:
+				if role.name == config.unconfirmed_member_name:
 					unconfirmed_members = len(role.members)
 			labels = ['Continua']
 			components = create_buttons(labels)
-			message = f'Din {len(ctx.guild.members)}:\n{confirmed_members} - confirmati\n{unconfirmed_members} - neconfirmati'
+			message = f'Din {len(ctx.guild.members)} de membri - {unconfirmed_members} neconfirmati'
 			embed = embeded('Statistica membrilor', message, discord.Colour.gold())
 			await msg.edit(embed=embed, components=components)
 
@@ -457,7 +455,7 @@ class OnEventTrigger(commands.Cog):
 				roles = [x.name for x in member.roles]
 				if valid.is_valid_group_name(readed_category):
 					if config.student_role_name in roles:
-						if config.confirmed_member_name not in roles:
+						if config.unconfirmed_member_name in roles:
 							speciality, year = readed_category.split('-')
 
 							if speciality in roles and year in roles:
