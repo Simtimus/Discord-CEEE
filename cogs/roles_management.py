@@ -30,7 +30,7 @@ class RolesManagement(commands.Cog):
 		await ctx.channel.purge(limit=1)
 		for member in ctx.guild.members:
 			for role in ctx.guild.roles:
-				if role.name == config.unconfirmed_member_name:
+				if role.name == config.unconfirmed_member_role_name:
 					await member.add_roles(role)
 		embed = create_embed(ctx, 'Procesul de unconfirmare', 'Finisat', discord.Colour.purple())
 		await ctx.channel.send(embed=embed)
