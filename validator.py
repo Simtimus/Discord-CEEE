@@ -33,11 +33,16 @@ def is_valid_member_name(name: str) -> bool:
 		return False
 
 	for word in split_name:
-		if word[0] not in config.uppercase:  # Daca prima litera din cuvinte nu este mare.
+		if len(word) < 3:
 			return False
 
-		for char in word:
-			if char not in config.lowercase and char not in config.uppercase:  # Daca simbolurile din nume nu sunt litere.
+		if word[0] not in config.uppercase:
+			return False
+
+		i = 1
+		while i < len(word):
+			if word[i] not in config.lowercase:
 				return False
+			i += 1
 
 	return True
