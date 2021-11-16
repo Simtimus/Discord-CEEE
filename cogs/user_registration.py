@@ -104,7 +104,7 @@ class OnEventTrigger(commands.Cog):
 		msg_to_user: discord.Message = await member.send(embed=embed)
 
 		# Se trimite mesj de notificare in canalul de notificari al serverului.
-		embed = discord.Embed(title='Membru nou', description=f'Se asteapta raspuns de la *{member}*', colour=discord.Colour.gold())
+		embed = discord.Embed(title='Membru nou', description=f'Se asteapta raspuns de la {member.mention}', colour=discord.Colour.gold())
 		notification_msg = await member.guild.get_channel(config.bot_notification_channel_id).send(embed=embed)
 
 		def check(the_event_message):
@@ -118,7 +118,7 @@ class OnEventTrigger(commands.Cog):
 			embed = discord.Embed(title='Inregistrare respinsa', description=message, colour=discord.Colour.red())
 			await msg_to_user.edit(embed=embed)
 			await member.guild.kick(member)
-			embed = discord.Embed(title='Membru nou', description=f'*{member}* - a fost dat afara\nMotivul: *inactivitate*', colour=discord.Colour.red())
+			embed = discord.Embed(title='Membru nou', description=f'{member.mention} - a fost dat afara\nMotivul: *inactivitate*', colour=discord.Colour.red())
 			await notification_msg.edit(embed=embed)
 			return
 
@@ -144,7 +144,7 @@ class OnEventTrigger(commands.Cog):
 			embed = discord.Embed(title='Inregistrare respinsa', description=message, colour=discord.Colour.red())
 			await member.send(embed=embed)
 
-			embed = discord.Embed(title='Membru nou', description=f'*{member}* - a fost dat afara\nMotivul: *nume incorect*', colour=discord.Colour.red())
+			embed = discord.Embed(title='Membru nou', description=f'{member.mention} - a fost dat afara\nMotivul: *nume incorect*', colour=discord.Colour.red())
 			await notification_msg.edit(embed=embed)
 
 			await member.guild.kick(member)
@@ -285,7 +285,7 @@ class OnEventTrigger(commands.Cog):
 			embed = embeded('Inregistrare respinsa', f'{exit_message}\n{message}', discord.Colour.red())
 			await msg_to_user.edit(embed=embed, components=[])
 			await member.guild.kick(member)
-			notification_msg_embed = embeded('Membru nou', f'*{member}* - a fost dat afara\nMotivul: *membrul a renuntat*', discord.Colour.red())
+			notification_msg_embed = embeded('Membru nou', f'{member.mention} - a fost dat afara\nMotivul: *membrul a renuntat*', discord.Colour.red())
 			await notification_msg.edit(embed=notification_msg_embed)
 			return
 
@@ -317,7 +317,7 @@ class OnEventTrigger(commands.Cog):
 		# Mesaj ca totul sa executat cu success
 		embed = embeded('Inregistrare finisata', message, discord.Colour.green())
 		await msg_to_user.edit(embed=embed, components=[])
-		notification_msg_embed = embeded('Membru nou', f'*{member}* - a finisat inregistrarea\nNumele: *{new_member_name}*\nStatutul: {statut}', discord.Colour.green())
+		notification_msg_embed = embeded('Membru nou', f'{member.mention} - a finisat inregistrarea\nNumele: *{new_member_name}*\nStatutul: {statut}', discord.Colour.green())
 		await notification_msg.edit(embed=notification_msg_embed)
 
 	@commands.command(aliases=['addsub'])
