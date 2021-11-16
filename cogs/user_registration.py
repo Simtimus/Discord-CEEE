@@ -317,7 +317,7 @@ class OnEventTrigger(commands.Cog):
 		# Mesaj ca totul sa executat cu success
 		embed = embeded('Inregistrare finisata', message, discord.Colour.green())
 		await msg_to_user.edit(embed=embed, components=[])
-		notification_msg_embed = embeded('Membru nou', f'{member.mention} - a finisat inregistrarea\nNumele: *{new_member_name}*\nStatutul: {statut}', discord.Colour.green())
+		notification_msg_embed = embeded('Membru nou', f'{member.mention} - a finisat inregistrarea\nStatutul: {statut}', discord.Colour.green())
 		await notification_msg.edit(embed=notification_msg_embed)
 
 	@commands.command(aliases=['addsub'])
