@@ -36,9 +36,9 @@ async def sync_channels(ctx: discord.Message, msg):
 			for channel in category.channels:
 				await channel.edit(sync_permissions=True)
 				if channel.name in sync_result.keys():
-					sync_result[channel.name].append([category.name, channel.id])
+					sync_result[channel.name].append([category.name, channel])
 				else:
-					sync_result[channel.name] = [[category.name, channel.id]]
+					sync_result[channel.name] = [[category.name, channel]]
 	embed = create_embed(ctx, 'Sincronizarea canalelor', f'Finailzat', discord.Colour.orange())
 	await msg.edit(embed=embed)
 	return sync_result
@@ -60,7 +60,7 @@ async def adaugarea_elevilor(ctx: discord.Message, msg):
 	await msg.edit(embed=embed)
 
 
-async def set_language_groups_and_teachers(ctx: discord.Message, msg, sync_results) -> None:
+async def set_language_groups_and_teachers(ctx: discord.Message, msg, sync_result) -> None:
 	embed = create_embed(ctx, 'Actualizarea permisiunilor', 'In desfasurare...', discord.Colour.dark_green())
 	await msg.edit(embed=embed)
 	for member in ctx.guild.members:
@@ -86,17 +86,15 @@ async def set_language_groups_and_teachers(ctx: discord.Message, msg, sync_resul
 						for category in ctx.guild.categories:
 							if category.name in splited_discipline:
 								# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
-								channels_id = sync_results[group_name]
-								for element in channels_id:
+								channels = sync_result[group_name]
+								for element in channels:
 									if element[0] == category.name:
-										intercepted_channel = ctx.guild.get_channel(element[1])
-										await intercepted_channel.set_permissions(member, view_channel=True)
+										await element[1].set_permissions(member, view_channel=True)
 
-								voce_id = sync_results[config.voice_channel_name]
-								for element in voce_id:
+								voice_channel = sync_result[config.voice_channel_name]
+								for element in voice_channel:
 									if element[0] == category.name:
-										intercepted_channel = ctx.guild.get_channel(element[1])
-										await intercepted_channel.set_permissions(member, view_channel=True)
+										await element[1].set_permissions(member, view_channel=True)
 	embed = create_embed(ctx, 'Actualizarea permisiunilor', f'Finailzat', discord.Colour.green())
 	await msg.edit(embed=embed)
 
@@ -138,6 +136,86 @@ class ChannelRoles(commands.Cog):
 					await channel.edit(sync_permissions=True)
 		# Finalizat
 		embed = create_embed(ctx, message, f'Finailzat', discord.Colour.green())
+		await msg.edit(embed=embed)
+
+	# Asocierea rolurilor si canalelor
+	@commands.command(aliases=['smartup'])
+	@commands.has_role('Admin')
+	async def smart_update(self, ctx, category_name):
+		await ctx.channel.purge(limit=1)
+		embed = create_embed(ctx, 'Procesul de actualizare', 'Initializare', discord.Colour.purple())
+		msg = await ctx.channel.send(embed=embed)
+
+		# Sincronizarea categoriei
+		sync_result = {}
+		embed = create_embed(ctx, 'Sincronizarea canalelor', 'In desfasurare...', discord.Colour.orange())
+		await msg.edit(embed=embed)
+		for category in ctx.guild.categories:
+			if category_name == category.name:
+				if valid.is_valid_group_name(category.name):
+					for channel in category.channels:
+						await channel.edit(sync_permissions=True)
+						if channel.name in sync_result.keys():
+							sync_result[channel.name].append([category.name, channel])
+						else:
+							sync_result[channel.name] = [[category.name, channel]]
+		embed = create_embed(ctx, 'Sincronizarea canalelor', f'Finailzat', discord.Colour.orange())
+		await msg.edit(embed=embed)
+
+		# Adaugarea elevilor
+		embed = create_embed(ctx, 'Adaugarea membrilor', 'In desfasurare...', discord.Colour.gold())
+		await msg.edit(embed=embed)
+		for member in ctx.guild.members:
+			roles = [role.name for role in member.roles]
+			if config.unconfirmed_member_role_name not in roles:
+				if config.student_role_name in roles or config.class_master_role_name in roles:
+					for category in ctx.guild.categories:
+						if category_name == category.name:
+							if valid.is_valid_group_name(category.name):
+								speciality, year = category.name.split('-')
+								if (speciality in roles and year in roles) or config.admin_role_name in roles:
+									await category.set_permissions(member, view_channel=True)
+		embed = create_embed(ctx, 'Adaugarea membrilor', f'Finailzat', discord.Colour.gold())
+		await msg.edit(embed=embed)
+
+		# Adaugarea profesorilor si elevilor in canalele cu limba straina
+		embed = create_embed(ctx, 'Actualizarea permisiunilor', 'In desfasurare...', discord.Colour.dark_green())
+		await msg.edit(embed=embed)
+		for member in ctx.guild.members:
+			roles = [role.name for role in member.roles]
+
+			if config.unconfirmed_member_role_name not in roles:
+				if config.student_role_name in roles:
+					for category in ctx.guild.categories:
+						if category_name == category.name:
+							if valid.is_valid_group_name(category.name):
+								speciality, year = category.name.split('-')
+								if speciality in roles and year in roles:
+									for channel in category.channels:
+										if channel.name == config.english_channel_name and channel.name not in roles:
+											await channel.set_permissions(member, view_channel=None)
+										elif channel.name == config.francais_channel_name and channel.name not in roles:
+											await channel.set_permissions(member, view_channel=None)
+				elif config.teacher_role_name in roles:
+					for role in member.roles:
+						if role.name.startswith('#'):
+							splited_discipline = role.name.split('_')
+							group_name = splited_discipline[0][1:]
+							# Daca numele primului element din lista coincide cu categoria
+							for category in ctx.guild.categories:
+								if category_name == category.name:
+									if category.name in splited_discipline:
+										# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
+										channels = sync_result[group_name]
+										for element in channels:
+											if element[0] == category.name:
+												await element[1].set_permissions(member, view_channel=True)
+
+										voice_channel = sync_result[config.voice_channel_name]
+										for element in voice_channel:
+											if element[0] == category.name:
+												await element[1].set_permissions(member, view_channel=True)
+		embed = create_embed(ctx, 'Actualizarea permisiunilor', f'Finailzat', discord.Colour.green())
 		await msg.edit(embed=embed)
 
 	# Asocierea rolurilor si canalelor
