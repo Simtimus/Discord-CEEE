@@ -104,7 +104,7 @@ class OnEventTrigger(commands.Cog):
 		msg_to_user: discord.Message = await member.send(embed=embed)
 
 		# Se trimite mesj de notificare in canalul de notificari al serverului.
-		embed = discord.Embed(title='Membru nou', description='Se asteapta raspuns de la *{member}*', colour=discord.Colour.gold())
+		embed = discord.Embed(title='Membru nou', description=f'Se asteapta raspuns de la *{member}*', colour=discord.Colour.gold())
 		notification_msg = await member.guild.get_channel(config.bot_notification_channel_id).send(embed=embed)
 
 		def check(the_event_message):
@@ -112,7 +112,7 @@ class OnEventTrigger(commands.Cog):
 
 		# Se asteapta numele utilizatorului in format de mesaj.
 		try:
-			event = await self.client.wait_for('message', timeout=120, check=check)
+			event = await self.client.wait_for('message', timeout=180, check=check)
 		except asyncio.TimeoutError:
 			message = f'Timpul acordat pentru inregistrare s-a scurs. Pentru a va putea inregistra din nou, accesati link-ul urmator: {config.server_join_link}'
 			embed = discord.Embed(title='Inregistrare respinsa', description=message, colour=discord.Colour.red())
