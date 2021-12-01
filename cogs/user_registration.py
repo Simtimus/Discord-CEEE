@@ -81,7 +81,7 @@ async def confirm_member(category: discord.CategoryChannel, member: discord.Memb
 		if channel.name in language_channel_names:
 			if channel.name in role_names:
 				await channel.set_permissions(member, view_channel=True)
-		elif channel.name != config.voice_channel_name:
+		else:
 			await channel.set_permissions(member, view_channel=True)
 
 	await member.remove_roles(unconfirmed_member_role)
