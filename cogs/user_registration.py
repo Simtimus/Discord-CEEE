@@ -85,7 +85,7 @@ async def confirm_member(category: discord.CategoryChannel, member: discord.Memb
 		if channel.name in language_channel_names:
 			if channel.name in role_names:
 				await channel.set_permissions(member, view_channel=True)
-		elif channel.name != config.voice_channel_name:
+		else:
 			await channel.set_permissions(member, view_channel=True)
 
 	await member.remove_roles(unconfirmed_member_role)
@@ -713,7 +713,8 @@ class OnEventTrigger(commands.Cog):
 				await the_bot_msg.edit(embed=embed, components=[])
 
 				for member in users_kicked:
-					await member.kick(reason=f'Integistrarea membrului {member.nik} a fost respinsa de catre {event.author.mention} ({config.class_master_role_name}).')
+					await member.send(f'Salut {member.mention}. Cererea dumneavoastra de inregistrare a fost refuzata. :cry: Aveti dreptul iarasi sa va inregistrati.')
+					await member.kick(reason=f'Integistrarea membrului {member.nick} a fost respinsa de catre {event.author.mention} ({config.class_master_role_name}).')
 
 				for member in new_confirmed_users:
 					await confirm_member(ctx.channel.category, member)
