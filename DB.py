@@ -21,7 +21,7 @@ def reconnect(func: classmethod):
 	return new_func
 
 
-class ConnetctTo_db:
+class ConnectTo_db:
 	def __init__(self, host: str, user: str, password: str, db_name: str, minutes_for_reconnection: int = 5):
 		"""
 		Creaza o clasa pentru interactiunea cu baza de date.
@@ -36,7 +36,7 @@ class ConnetctTo_db:
 		self.mycursor.execute(f'USE {self.db_name}')
 		self.minutes_passed_for_reconnection = minutes_for_reconnection * 60
 
-	# def Recocnnect(self) -> None:
+	# def Reconnect(self) -> None:
 	# 	if time.time() - self.last_connection_time > self.minutes_passed_for_reconnection:
 	# 		self.mydb = mysql.connector.connect(host=self.host, user=self.user, password=self.db_password)
 	# 		self.last_connection_time = time.time()
