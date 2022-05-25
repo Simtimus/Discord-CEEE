@@ -62,9 +62,9 @@ class DBlib:
 		Returneaza: o lista de utilizatori
 		"""
 		self.mycursor.execute(f"SELECT * FROM `{table}`")
-		myresult = self.mycursor.fetchall()
+		my_result = self.mycursor.fetchall()
 		users = []
-		for result in myresult:
+		for result in my_result:
 			users.append(result[1])
 		return users
 

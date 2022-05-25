@@ -93,7 +93,7 @@ async def confirm_member(category: discord.CategoryChannel, member: discord.Memb
 
 def add_member_to_wait_list(member: discord.Member):
 	mydb.connect()
-	mydb.insert('RegistrationInformation', ['UserID', 'Data', 'Status'], [member.id, datetime.date.today(), 'waiting'])
+	mydb.insert('RegistrationInformation', ['UserID', 'Data', 'Status'], [member.id, datetime.date.today(), 'waiting'])		# 'blocked', 'waiting'
 
 
 def remove_member_from_wait_list(this_member: discord.Member):
