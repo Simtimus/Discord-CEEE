@@ -28,7 +28,7 @@ def embeded(title, description, colour=discord.Colour.blue()):
 	return embed
 
 
-def get_disctionary_of_roles(roles):
+def get_dictionary_of_roles(roles):
 	groups = {}
 	for role in roles:
 		group, year = role.name.split('-')
@@ -178,7 +178,7 @@ class OnEventTrigger(commands.Cog):
 		new_member_name = event.content
 		statut = None
 		roles = [x for x in member.guild.categories if valid.is_valid_group_name(x.name)]
-		groups = get_disctionary_of_roles(roles)
+		groups = get_dictionary_of_roles(roles)
 		inactivity_message = 'Procesul a fost oprit din cauza inactivității utilizatorului'
 		dismiss_message = 'Procesul a fost oprit de utilizator'
 		rejoin_message = f'Pentru a va înregistra din nou, accesați link-ul următor: {config.server_join_link}'
@@ -194,7 +194,7 @@ class OnEventTrigger(commands.Cog):
 			message += '\n`2. Mesajul cu numele și prenumele trimis trebuie să fie format din 2 sau 3 cuvinte.`'
 			message += '\n`3. Prima literă a fiecărui cuvânt trebuie să fie masjuscula.`'
 			message += '\n`4. Numărul minim de litere în cuvânt trebuie să fie egal cu 3 sau mai mare.`'
-			message += f'\n{rejoin_message}'
+			message += f'\nDumneavoastră puteți în decurs de 5 zile să vă înregistrați pe site {config.server_join_link}'
 			embed = discord.Embed(title='Înregistrare amânată', description=message, colour=discord.Colour.red())
 			await member.send(embed=embed)
 
