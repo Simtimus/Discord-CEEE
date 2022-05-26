@@ -28,6 +28,7 @@ lowercase = ['a', 'ă', 'â',  'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'î', 'j'
 uppercase = [a.upper() for a in lowercase]
 
 server_join_link = 'https://discord.gg/7bPVtAWUxu'
+website_link = 'https://discord-site-ceee.herokuapp.com'
 guild_id = 875688932271087657
 bot_notification_channel_id = 904096410532724756
 

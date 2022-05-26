@@ -190,11 +190,11 @@ class OnEventTrigger(commands.Cog):
 		# Se verifica daca noul utilizator a scris un nume valid
 		if not valid.is_valid_member_name(new_member_name):
 			message = 'Numele sau prenumlele introdus nu satisface cerintelor:'
-			message += '\n`1. Numele trebuie sa conțină numai litere latine.`'
-			message += '\n`2. Mesajul cu numele și prenumele trimis trebuie să fie format din 2 sau 3 cuvinte.`'
-			message += '\n`3. Prima literă a fiecărui cuvânt trebuie să fie masjuscula.`'
-			message += '\n`4. Numărul minim de litere în cuvânt trebuie să fie egal cu 3 sau mai mare.`'
-			message += f'\nDumneavoastră puteți în decurs de 5 zile să vă înregistrați pe site {config.server_join_link}'
+			message += '\n```1. Numele trebuie sa conțină numai litere latine.'
+			message += '\n2. Mesajul cu numele și prenumele trimis trebuie să fie format din 2 sau 3 cuvinte.'
+			message += '\n3. Prima literă a fiecărui cuvânt trebuie să fie masjuscula.'
+			message += '\n4. Numărul minim de litere în cuvânt trebuie să fie egal cu 3 sau mai mare.```'
+			message += f'\n**Dumneavoastră puteți în decurs de 5 zile să vă înregistrați pe website** {config.website_link}'
 			embed = discord.Embed(title='Înregistrare amânată', description=message, colour=discord.Colour.red())
 			await member.send(embed=embed)
 
