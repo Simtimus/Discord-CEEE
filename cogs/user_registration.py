@@ -122,7 +122,6 @@ class OnEventTrigger(commands.Cog):
 		# Definirea variabilelor esentiale
 		registration_timeout = 180
 		timeout = 30
-		add_member_to_list = True
 
 		# verificare daca membrul este bot
 		if member.bot:
@@ -157,6 +156,7 @@ class OnEventTrigger(commands.Cog):
 		# Se trimite mesaj de notificare in canalul de notificari al serverului.
 		embed = discord.Embed(title='Membru nou', description=f'Se asteaptă raspuns de la {member}', colour=discord.Colour.gold())
 		notification_msg = await member.guild.get_channel(config.bot_notification_channel_id).send(embed=embed)
+		add_member_to_wait_list(member)
 
 		def check(the_event_message):
 			return the_event_message.author.id == member.id
@@ -170,8 +170,6 @@ class OnEventTrigger(commands.Cog):
 			await msg_to_user.edit(embed=embed)
 			embed = discord.Embed(title='Membru nou', description=f'{member} - a fost adăugat în lista de așteptare pentru înregistrare pe site\nMotivul: *inactivitate*', colour=discord.Colour.gold())
 			await notification_msg.edit(embed=embed)
-			if add_member_to_list:
-				add_member_to_wait_list(member)
 			return
 
 		# Definirea variabilelor
@@ -200,8 +198,6 @@ class OnEventTrigger(commands.Cog):
 
 			embed = discord.Embed(title='Membru nou', description=f'{member} - a fost adăugat în lista de așteptare pentru înregistrare pe site\nMotivul: *nume incorect*\n|{new_member_name}|', colour=discord.Colour.red())
 			await notification_msg.edit(embed=embed)
-			if add_member_to_list:
-				add_member_to_wait_list(member)
 			# await member.guild.kick(member)
 			return
 
@@ -342,7 +338,6 @@ class OnEventTrigger(commands.Cog):
 				await msg_to_user.edit(embed=embed, components=[])
 				notification_msg_embed = embeded('Membru nou', f'{member} - a fost adăugat în lista de așteptare pentru înregistrare pe site\nMotivul: *inactivitate*', discord.Colour.red())
 				await notification_msg.edit(embed=notification_msg_embed)
-				add_member_to_wait_list(member)
 				return
 			else:
 				message = rejoin_message
@@ -383,8 +378,7 @@ class OnEventTrigger(commands.Cog):
 		await msg_to_user.edit(embed=embed, components=[])
 		notification_msg_embed = embeded('Membru nou', f'{member} - a finisat înregistrarea\nNumele: *{new_member_name}*\nStatutul: {statut}', discord.Colour.green())
 		await notification_msg.edit(embed=notification_msg_embed)
-		if not add_member_to_list:
-			remove_member_from_wait_list(member)
+		remove_member_from_wait_list(member)
 
 	@commands.command(aliases=['addsub'])
 	@commands.has_role('Admin')
