@@ -165,7 +165,7 @@ class OnEventTrigger(commands.Cog):
 		try:
 			event = await self.client.wait_for('message', timeout=registration_timeout, check=check)
 		except asyncio.TimeoutError:
-			message = f'Timpul acordat pentru înregistrare s-a scurs. Dumneavoastră puteți în decurs de 5 zile să vă înregistrați pe site {config.server_join_link}'
+			message = f'Timpul acordat pentru înregistrare s-a scurs. Dumneavoastră puteți în decurs de 5 zile să vă înregistrați pe site {config.website_link}'
 			embed = discord.Embed(title='Înregistrare amânată', description=message, colour=discord.Colour.gold())
 			await msg_to_user.edit(embed=embed)
 			embed = discord.Embed(title='Membru nou', description=f'{member} - a fost adăugat în lista de așteptare pentru înregistrare pe site\nMotivul: *inactivitate*', colour=discord.Colour.gold())
