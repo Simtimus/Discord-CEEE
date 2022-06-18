@@ -110,6 +110,21 @@ def remove_member_from_wait_list(this_member: discord.Member):
 						mydb.delete(table, int(row[0]))
 
 
+def count_members_with_selected_roles(members: [discord.Member], roles: [str]) -> int:
+	members_count = 0
+
+	for member in members:
+		roles_count = 0
+		for member_role in member.roles:
+			for role in roles:
+				if role == member_role.name:
+					roles_count += 1
+		if roles_count == len(roles):
+			members_count += 1
+
+	return members_count
+
+
 # Initierea clasului
 class OnEventTrigger(commands.Cog):
 	def __init__(self, client):
@@ -460,80 +475,14 @@ class OnEventTrigger(commands.Cog):
 		process = None
 		inactivity_message = 'Procesul a fost oprit din cauza inactivității utilizatorului'
 		user_cancel_message = 'Procesul a fost oprit de utilizator'
-
-		labels = ['Continuati', 'Statistica']
-		components = create_buttons(labels)
-		embed = embeded('Verificarea membrilor', 'Pentru a începe, apăsați *Continuați*', discord.Colour.blurple())
-		msg: discord.Message = await ctx.channel.send(embed=embed, components=components)
+		msg: discord.Message = None
 
 		def check(the_event_message):
 			return the_event_message.author.id == ctx.message.author.id
-		# Alegerea procesului necesar
-		try:
-			event = await self.client.wait_for('button_click', timeout=timeout, check=check)
-		except main.asyncio.TimeoutError:
-			embed = embeded('Verificarea membrilor', inactivity_message, discord.Colour.red())
-			await msg.edit(embed=embed, components=[])
-			await event.respond(type=6)
-			return
-		else:
-			if event.component.label == 'Renunță':
-				embed = embeded('Verificarea membrilor', user_cancel_message, discord.Colour.light_gray())
-				await msg.edit(embed=embed, components=[])
-				await event.respond(type=6)
-				return
-			else:
-				if event.component.label == labels[0]:
-					if readed_category is not None:
-						if valid.is_valid_group_name(readed_category):
-							process = 'process_members'
-						else:
-							embed = embeded('Verificarea membrilor', 'Numele categoriei nu este valid', discord.Colour.red())
-							await msg.edit(embed=embed, components=[])
-							return
-					else:
-						process = 'get_group'
-				elif event.component.label == labels[1]:
-					process = 'stats'
-			await event.respond(type=6)
-
-		# Vizualizarea datelor statistice
-		if process == 'stats':
-			embed = embeded('Statistica membrilor', 'Prelucrarea datelor . . .', discord.Colour.gold())
-			await msg.edit(embed=embed, components=[])
-			confirmed_members = 0
-			unconfirmed_members = 0
-			for role in ctx.guild.roles:
-				if role.name == config.unconfirmed_member_role_name:
-					unconfirmed_members = len(role.members)
-			labels = ['Continua']
-			components = create_buttons(labels)
-			message = f'Din {len(ctx.guild.members)} de membri - {unconfirmed_members} neconfirmați'
-			embed = embeded('Statistica membrilor', message, discord.Colour.gold())
-			await msg.edit(embed=embed, components=components)
-
-			try:
-				event = await self.client.wait_for('button_click', timeout=timeout, check=check)
-			except main.asyncio.TimeoutError:
-				embed = embeded('Statistica membrilor', inactivity_message, discord.Colour.red())
-				await msg.edit(embed=embed, components=[])
-				await event.respond(type=6)
-				return
-			else:
-				if event.component.label == 'Renunță':
-					embed = embeded('Statistica membrilor', user_cancel_message, discord.Colour.light_gray())
-					await msg.edit(embed=embed, components=[])
-					await event.respond(type=6)
-					return
-				else:
-					if event.component.label == labels[0]:
-						process = 'get_group'
-			await event.respond(type=6)
-
 		# Introducerea categoriei de la tastatura
-		if process == 'get_group' and readed_category is None:
+		if readed_category is None:
 			embed = embeded('Alegerea categoriei', 'Introduceți denumirea categoriei de la tastatură . . .', discord.Colour.purple())
-			await msg.edit(embed=embed, components=[])
+			msg: discord.Message = await ctx.channel.send(embed=embed, components=[])
 			try:
 				event = await self.client.wait_for('message', timeout=timeout, check=check)
 			except asyncio.TimeoutError:
@@ -564,14 +513,83 @@ class OnEventTrigger(commands.Cog):
 						return
 					else:
 						if event.component.label == labels[0]:
-							if valid.is_valid_group_name(readed_category):
-								process = 'process_members'
-							else:
+							if not valid.is_valid_group_name(readed_category):
 								embed = embeded('Alegerea categoriei', 'Numele categoriei nu este valid', discord.Colour.red())
 								await msg.edit(embed=embed, components=[])
 								return
 
 				await event.respond(type=6)
+
+		labels = ['Continuati', 'Statistica']
+		components = create_buttons(labels)
+		embed = embeded('Verificarea membrilor', 'Pentru a începe, apăsați *Continuați*', discord.Colour.blurple())
+		if msg is None:
+			msg: discord.Message = await ctx.channel.send(embed=embed, components=components)
+		else:
+			await msg.edit(embed=embed, components=components)
+
+		# Alegerea procesului necesar
+		try:
+			event = await self.client.wait_for('button_click', timeout=timeout, check=check)
+		except main.asyncio.TimeoutError:
+			embed = embeded('Verificarea membrilor', inactivity_message, discord.Colour.red())
+			await msg.edit(embed=embed, components=[])
+			await event.respond(type=6)
+			return
+		else:
+			if event.component.label == 'Renunță':
+				embed = embeded('Verificarea membrilor', user_cancel_message, discord.Colour.light_gray())
+				await msg.edit(embed=embed, components=[])
+				await event.respond(type=6)
+				return
+			else:
+				if event.component.label == labels[0]:
+					if readed_category is not None:
+						if valid.is_valid_group_name(readed_category):
+							process = 'process_members'
+						else:
+							embed = embeded('Verificarea membrilor', 'Numele categoriei nu este valid', discord.Colour.red())
+							await msg.edit(embed=embed, components=[])
+							return
+					else:
+						process = 'process_members'
+				elif event.component.label == labels[1]:
+					process = 'stats'
+			await event.respond(type=6)
+
+		# Vizualizarea datelor statistice
+		if process == 'stats':
+			embed = embeded('Statistica membrilor', 'Prelucrarea datelor . . .', discord.Colour.gold())
+			await msg.edit(embed=embed, components=[])
+			labels = ['Continua']
+			components = create_buttons(labels)
+
+			category_name = readed_category.split("-")
+			total_members = count_members_with_selected_roles(ctx.guild.members, category_name)
+			category_name.append(config.unconfirmed_member_role_name)
+			unconfirmed_members = count_members_with_selected_roles(ctx.guild.members, category_name)
+
+			message = f'Din {total_members} de membri - {unconfirmed_members} neconfirmați'
+			embed = embeded('Statistica membrilor', message, discord.Colour.gold())
+			await msg.edit(embed=embed, components=components)
+
+			try:
+				event = await self.client.wait_for('button_click', timeout=timeout, check=check)
+			except main.asyncio.TimeoutError:
+				embed = embeded('Statistica membrilor', inactivity_message, discord.Colour.red())
+				await msg.edit(embed=embed, components=[])
+				await event.respond(type=6)
+				return
+			else:
+				if event.component.label == 'Renunță':
+					embed = embeded('Statistica membrilor', user_cancel_message, discord.Colour.light_gray())
+					await msg.edit(embed=embed, components=[])
+					await event.respond(type=6)
+					return
+				else:
+					if event.component.label == labels[0]:
+						process = 'process_members'
+			await event.respond(type=6)
 
 		# Processul de confirmare
 		if process == 'process_members' and readed_category is not None:
