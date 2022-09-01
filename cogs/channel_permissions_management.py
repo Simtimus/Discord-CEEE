@@ -206,15 +206,16 @@ class ChannelRoles(commands.Cog):
 								if category_name == category.name:
 									if category.name in splited_discipline:
 										# Pentru fiecare denumire de canal se verifica coincidenta cu denumirea rolurilor
-										channels = sync_result[group_name]
-										for element in channels:
-											if element[0] == category.name:
-												await element[1].set_permissions(member, view_channel=True)
+										if group_name in sync_result.keys():
+											channels = sync_result[group_name]
+											for element in channels:
+												if element[0] == category.name:
+													await element[1].set_permissions(member, view_channel=True)
 
-										voice_channel = sync_result[config.voice_channel_name]
-										for element in voice_channel:
-											if element[0] == category.name:
-												await element[1].set_permissions(member, view_channel=True)
+											voice_channel = sync_result[config.voice_channel_name]
+											for element in voice_channel:
+												if element[0] == category.name:
+													await element[1].set_permissions(member, view_channel=True)
 		embed = create_embed(ctx, 'Actualizarea permisiunilor', f'Finailzat', discord.Colour.green())
 		await msg.edit(embed=embed)
 
